@@ -19,6 +19,13 @@ module.exports = function (plop) {
             return opts.inverse(this)
         }
     });
+    plop.setHelper('isnot', function (arg1, arg2, opts) {
+        if (arg1 != arg2) {
+            return opts.fn(this)
+        } else {
+            return opts.inverse(this)
+        }
+    });
     // create your generators here
     plop.setGenerator('VM', {
         description: 'This module generates ARM template file for a VM',
@@ -28,8 +35,7 @@ module.exports = function (plop) {
                 name: 'name',
                 message: 'What is the template name?',
                 validate: validateRequired
-            },
-            
+            },            
             {
                 type: 'confirm',
                 name: 'existingVNET',
