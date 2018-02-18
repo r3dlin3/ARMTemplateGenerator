@@ -1,7 +1,7 @@
 ARMTemplateGenerator
 ====================
 ifdef::env-github[]
-:imagesdir: https://github.com/r3dlin3/ARMTemplateGenerator/tree/master/
+:imagesdir: https://raw.githubusercontent.com/r3dlin3/ARMTemplateGenerator/master/
 :tip-caption: :bulb:
 :note-caption: :information_source:
 :important-caption: :heavy_exclamation_mark:
