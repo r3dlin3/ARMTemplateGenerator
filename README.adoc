@@ -1,0 +1,44 @@
+ARMTemplateGenerator
+====================
+
+== What is ARMTemplateGenerator?
+ARMTemplateGenerator is a CLI to generate ARM templates. 
+
+It is based on plop. Instead of a ton of parameters, the CLI will ask questions to generate the ARM template and its associated parameter file.
+
+At this moment, only VM templates can be generated (only one plop module).
+
+
+== Getting Started
+
+=== Installation
+1. Clone the repo
+
+    git clone https://github.com/r3dlin3/ARMTemplateGenerator
+
+2. Install plop globally
+
+    $ yarn global add plop  
+or
+    $ npm install -g plop
+
+3. Install dependencies
+    $ yarn install
+or
+    $ npm install
+
+=== Generate a VM ARM template
+----
+plop VM
+----
+And answers the question
+
+== Example
+
+image::assets/screen.png
+
+And the generated file: 
+
+* link:assets/azuredeploy.json[The ARM template]
+* link:assets/azuredeploy.parameters.json[The parameters]
+
