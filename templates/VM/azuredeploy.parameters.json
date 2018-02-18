@@ -18,11 +18,7 @@
       },
       {{/unless}}
       {{/unless}}
-      
-      "subnetPrefix": "10.0.0.0/24",
-
-
-      {{#if publicIP}}
+      {{#if hasPublicIP}}
       "dnsLabelPrefix": {
         "value": "{{name}}"
       },
@@ -32,9 +28,14 @@
       {{/if}}
       {{#is privateIPtype "Static"}}
       "privateIP": {
-          "value": "{{privateIP}}"
+          "value": ""
       },
       {{/is}}
+      {{#isnot nbDataDisk 0}}
+      "sizeOfEachDataDiskInGB": {
+          "value": ""
+      },
+      {{/isnot}}
       "nicName": {
         "value": ""
       },
@@ -46,15 +47,9 @@
       },
       "vmSize": {
           "value": ""
-      }
+      },
       "location": {
         "value": ""
       }
-      {{#if nbDataDisk}}
-      "sizeOfEachDataDiskInGB": {
-          "value": ""
-      }
-      {{/if}}
-
     }
   }
