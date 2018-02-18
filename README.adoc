@@ -42,3 +42,10 @@ And the generated file:
 * link:assets/azuredeploy.json[The ARM template]
 * link:assets/azuredeploy.parameters.json[The parameters]
 
+== TODO
+
+* VM: add diagnostic support
+* VM: add Azure Key Vault support
+* VM: add Backup support
+* New module for WebApp (AppInsights, WebTest, AzureCDN, DB?)
+
