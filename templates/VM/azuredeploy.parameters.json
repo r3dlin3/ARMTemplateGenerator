@@ -1,0 +1,60 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vnetName": {
+        "value": ""
+      },
+      "subnetName": {
+        "value": ""
+      },
+      {{#unless existingVNET}}
+      "vnetPrefix": {
+        "value": ""
+      },
+      {{#unless existingSubnet}}
+      "subnetPrefix": {
+        "value": ""
+      },
+      {{/unless}}
+      {{/unless}}
+      
+      "subnetPrefix": "10.0.0.0/24",
+
+
+      {{#if publicIP}}
+      "dnsLabelPrefix": {
+        "value": "{{name}}"
+      },
+      "publicIPAddressName": {
+          "value": "GEN-publicIPAddressName"
+      },
+      {{/if}}
+      {{#is privateIPtype "Static"}}
+      "privateIP": {
+          "value": "{{privateIP}}"
+      },
+      {{/is}}
+      "nicName": {
+        "value": ""
+      },
+      "adminUsername": {
+        "value": ""
+      },
+      "adminPassword": {
+        "value": ""
+      },
+      "vmSize": {
+          "value": ""
+      }
+      "location": {
+        "value": ""
+      }
+      {{#if nbDataDisk}}
+      "sizeOfEachDataDiskInGB": {
+          "value": ""
+      }
+      {{/if}}
+
+    }
+  }

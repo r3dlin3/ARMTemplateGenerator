@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "handlebars-helper-repeat": "https://github.com/r3dlin3/handlebars-helper-repeat#feature/block_params"
+  }
+}
