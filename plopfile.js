@@ -110,7 +110,7 @@ module.exports = function (plop) {
             },
             {
                 type: 'list',
-                name: 'osSku ',
+                name: 'osSku',
                 default: 0,
                 message: 'What is the OS SKU?',
                 choices: function(answers) {

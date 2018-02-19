@@ -1,55 +1,58 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "vnetName": {
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": ""
+    },
+    "subnetName": {
+      "value": ""
+    },
+    {{#unless existingVNET}}
+    "vnetPrefix": {
+      "value": ""
+    },
+    {{#unless existingSubnet}}
+    "subnetPrefix": {
+      "value": ""
+    },
+    {{/unless}}
+    {{/unless}}
+    {{#if hasPublicIP}}
+    "dnsLabelPrefix": {
+      "value": "{{name}}"
+    },
+    "publicIPAddressName": {
         "value": ""
-      },
-      "subnetName": {
+    },
+    {{/if}}
+    {{#is privateIPtype "Static"}}
+    "privateIP": {
         "value": ""
-      },
-      {{#unless existingVNET}}
-      "vnetPrefix": {
+    },
+    {{/is}}
+    {{#isnot nbDataDisk 0}}
+    "sizeOfEachDataDiskInGB": {
         "value": ""
-      },
-      {{#unless existingSubnet}}
-      "subnetPrefix": {
+    },
+    {{/isnot}}
+    "nicName": {
+      "value": ""
+    },
+    "adminUsername": {
+      "value": ""
+    },
+    "adminPassword": {
+      "value": ""
+    },
+    "vmName": {
         "value": ""
-      },
-      {{/unless}}
-      {{/unless}}
-      {{#if hasPublicIP}}
-      "dnsLabelPrefix": {
-        "value": "{{name}}"
-      },
-      "publicIPAddressName": {
-          "value": "GEN-publicIPAddressName"
-      },
-      {{/if}}
-      {{#is privateIPtype "Static"}}
-      "privateIP": {
-          "value": ""
-      },
-      {{/is}}
-      {{#isnot nbDataDisk 0}}
-      "sizeOfEachDataDiskInGB": {
-          "value": ""
-      },
-      {{/isnot}}
-      "nicName": {
+    },
+    "vmSize": {
         "value": ""
-      },
-      "adminUsername": {
-        "value": ""
-      },
-      "adminPassword": {
-        "value": ""
-      },
-      "vmSize": {
-          "value": ""
-      },
-      "location": {
-        "value": ""
-      }
+    },
+    "location": {
+      "value": ""
     }
   }
+}

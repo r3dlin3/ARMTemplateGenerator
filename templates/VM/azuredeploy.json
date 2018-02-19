@@ -2,7 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-
         {{#if hasPublicIP}}
         "dnsLabelPrefix": {
             "type": "string",
@@ -61,23 +60,49 @@
         },
         "location": {
             "type": "string",
-            "default": "[resourceGroup().location]",
+            "defaultValue": "[resourceGroup().location]",
             "metadata": {
                 "description": ""
             }
         },      
-      "vmSize": {
+        "vmSize": {
             "type": "string",
+            "defaultValue": "Standard_D2_v2",
+            "allowedValues": [
+                "Basic_A2", "Basic_A3","Basic_A4","Standard_A10", "Standard_A11",
+                "Standard_A2", "Standard_A2_v2","Standard_A2m_v2", "Standard_A3",
+                "Standard_A4", "Standard_A4_v2","Standard_A4m_v2", "Standard_A5",
+                "Standard_A6", "Standard_A7","Standard_A8", "Standard_A8_v2",
+                "Standard_A8m_v2", "Standard_A9","Standard_D11", "Standard_D11_v2",
+                "Standard_D12", "Standard_D12_v2","Standard_D13", "Standard_D13_v2",
+                "Standard_D14", "Standard_D14_v2","Standard_D15_v2", "Standard_D2",
+                "Standard_D2_v2", "Standard_D3","Standard_D3_v2", "Standard_D4",
+                "Standard_D4_v2", "Standard_D5_v2","Standard_DS11","Standard_DS11_v2",
+                "Standard_DS12", "Standard_DS12_v2", "Standard_DS13", "Standard_DS13_v2",
+                "Standard_DS14", "Standard_DS14_v2", "Standard_DS15_v2", "Standard_DS2",
+                "Standard_DS2_v2", "Standard_DS3", "Standard_DS3_v2", "Standard_DS4",
+                "Standard_DS4_v2", "Standard_DS5_v2", "Standard_F16", "Standard_F16s",
+                "Standard_F2", "Standard_F2s", "Standard_F4", "Standard_F4s",
+                "Standard_F8", "Standard_F8s", "Standard_G1", "Standard_G2",
+                "Standard_G3", "Standard_G4", "Standard_G5", "Standard_GS1",
+                "Standard_GS2", "Standard_GS3", "Standard_GS4", "Standard_GS5",
+                "Standard_H16", "Standard_H16m", "Standard_H16mr", "Standard_H16r",
+                "Standard_H8", "Standard_H8m", "Standard_NC12", "Standard_NC24",
+                "Standard_NC24r", "Standard_NC6", "Standard_NV12", "Standard_NV24",
+                "Standard_NV6"
+              ],
             "metadata": {
                 "description": "Size of VM"
             }
         },
+        {{#isnot nbDataDisk 0}}
         "sizeOfEachDataDiskInGB": {
             "type": "string",
             "metadata": {
                 "description": "Size of each data disk in GB"
             }
         },
+        {{/isnot}}
         "adminUsername": {
             "type": "string",
             "metadata": {
@@ -98,7 +123,7 @@
         },
         "computerName": {
             "type": "string",
-            "default": "[parameters('vmName')]",
+            "defaultValue": "[parameters('vmName')]",
             "metadata": {
                  "description": "Name of the VM"
              }
@@ -107,24 +132,18 @@
     "variables": {
         "imagePublisher": "{{osPublisher}}",
         "imageOffer": "{{osOffer}}",
-        "imageSKU": "{{osOffer}}",
+        "imageSKU": "{{osSku}}",
         "imageVersion": "latest",
-        {{#if publicIP}}
+        {{#if hasPublicIP}}
         "publicIPAddressType": "{{publicIPtype}}",
         {{/if}}
-        "storageAccountType": "Standard_LRS",
-        {{#if existingVNET}}
+        "storageAccountType": "{{storageAccountType}}",
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
-        {{#if existingSubnet}}
         "subnetID": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
-        {{else}}
-        "subnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]",
-        {{/if}}
-        {{/if}}
         "apiVersion": "2015-06-15"
     },
     "resources": [
-        {{#if publicIP}}
+        {{#if hasPublicIP}}
        {
             "apiVersion": "2015-06-15",
             "type": "Microsoft.Network/publicIPAddresses",
@@ -171,7 +190,7 @@
                 "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]",
                 {{/if}}
                 {{#unless existingVNET}}
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
                 {{/unless}}
             ],
             "properties": {
@@ -180,19 +199,16 @@
                         "name": "ipconfig1",
                         "properties": {
                             "privateIPAllocationMethod": "{{privateIPtype}}",
-                            {{#if privateIP}}
+                            {{#is privateIPtype "Static"}}
                             "privateIPAddress": "[parameters('privateIp')]",
-                            {{/if}}
+                            {{/is}}
                             {{#if hasPublicIP}}
                             "publicIPAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]"
                             },
                             {{/if}}
-                            
                             "subnet": {
-                                {{#if existingSubnet}}
                                 "id": "[variables('subnetID')]"
-                                {{/if}}
                             }
                         }
                     }
@@ -206,7 +222,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 /*"[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",*/
-                "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('nicName'))]"
             ],
             "properties": {
                 "hardwareProfile": {
