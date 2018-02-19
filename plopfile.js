@@ -138,18 +138,28 @@ module.exports = function (plop) {
                 default: 2,
                 message: 'How many data disk?',
                 validate: validateUnsignedInteger
-            }/*,
+            },
             {
-                type: 'list',
-                name: 'storageAccountType',
-                default: 0,
-                message: 'Which Storage Account?',
-                choices: ['Standard_LRS', 'Standard_GRS'],
+                type: 'confirm',
+                name: 'hasAutoShutdown',
+                default: true,
+                message: 'Do you want to plan an auto-shutdown?',
+            },
+            {
+                type: 'confirm',
+                name: 'isDiagnosticsEnabled',
+                default: false,
+                message: 'Do you want to enable diagnostics?',
+            },
+            {
+                type: 'confirm',
+                name: 'existingStorage',
+                default: false,
+                message: 'Do you want to use an existing storage account?',
                 when: function (answers) {
-                    return Number(answers.nbDataDisk) > 0;
+                    return answers.isDiagnosticsEnabled;
                 }
-            },*/
-
+            }
         ], // array of inquirer prompts
         actions: [
             {

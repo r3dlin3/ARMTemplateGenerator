@@ -45,9 +45,27 @@
     "adminPassword": {
       "value": ""
     },
-    "vmName": {
+    {{#if isDiagnosticsEnabled}}
+    "storageName": {
+      "value": ""
+    },
+    {{#unless existingStorage}}
+    "storageAccountType": {
         "value": ""
     },
+    {{/unless}}
+    {{/if}}
+    "vmName": {
+      "value": ""
+    },
+    {{#if hasAutoShutdown}}
+    "autoShutdownDailyRecurrence": {
+      "value": "1900"
+    },
+    "autoShutdownTimezone": {
+      "value": ""
+    },
+    {{/if}}
     "vmSize": {
         "value": ""
     },

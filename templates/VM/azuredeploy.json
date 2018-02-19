@@ -121,6 +121,55 @@
                 "description": "Name of the VM"
             }
         },
+        {{#if hasAutoShutdown}}
+        "autoShutdownName": {
+            "type": "string",
+            "defaultValue": "[concat('shutdown-computevm-',parameters('vmName'))]",
+            "metadata": {
+                "description": "Name of the schedules resource"
+            }
+        },
+        "autoShutdownDailyRecurrence": {
+            "type": "string",
+            "metadata": {
+                "description": "The daily recurrence"
+            }
+        },
+        "autoShutdownTimezone": {
+            "type": "string",
+            "allowedValues": [
+                "Romance Standard Time",
+                "Pacific Standard time"
+            ],
+            "metadata": {
+                "description": "The daily recurrence"
+            }
+        },
+        {{/if}}
+        {{#if isDiagnosticsEnabled}}
+        "enableDiagnostics": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable or disable VM diagnostics."
+            }
+        },
+        "storageName": {
+            "type": "string",
+            "metadata": {
+                "description": "Storage account for VM diagnostics."
+            }
+        },
+        {{#unless existingStorage}}
+        "storageAccountType": {
+            "type": "string",
+            "allowedValues": ["Standard_LRS", "Standard_GRS"],
+            "metadata": {
+                "description": "Type of storage account for VM diagnostics."
+            }
+        },
+        {{/unless}}
+        {{/if}}
         "computerName": {
             "type": "string",
             "defaultValue": "[parameters('vmName')]",
@@ -157,7 +206,7 @@
             }
         },
         {{/if}}
-        {{#unless existingSubnet}}
+        {{#unless existingVNET}}
         {
             "apiVersion": "2015-06-15",
             "type": "Microsoft.Network/virtualNetworks",
@@ -179,6 +228,16 @@
                 ]
             }
         },
+        {{/unless}}
+        {{#unless existingSubnet}}
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "name": "[concat(parameters('vnetName'), '/', parameters('subnetName'))]",
+            "apiVersion": "2017-10-01",
+            "properties": {
+                "addressPrefix": "[parameters('subnetPrefix')]"
+            }
+        }
         {{/unless}}
         {
             "apiVersion": "2015-06-15",
@@ -215,13 +274,50 @@
                 ]
             }
         },
+        {{#if hasAutoShutdown}}
+        {
+            "type": "microsoft.devtestlab/schedules",
+            "name": "[parameters('autoShutdownName')]",
+            "apiVersion": "2016-05-15",
+            "location": "[parameters('location')]",
+            "properties": {
+                "status": "Enabled",
+                "taskType": "ComputeVmShutdownTask",
+                "dailyRecurrence": {
+                    "time": "[parameters('autoShutdownDailyRecurrence')]"
+                },
+                "timeZoneId": "[parameters('autoShutdownTimezone')]",
+                "notificationSettings": {
+                    "status": "Disabled",
+                    "timeInMinutes": 30
+                },
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+            ]
+        },
+        {{/if}}
+        {{#unless existingStorage}}
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[parameters('storageName')]",
+            "apiVersion": "2015-06-15",
+            "location": "[parameters('location')]",
+            "properties": {
+                "accountType": "[parameters('storageAccountType')]"
+            }
+        },
+        {{/unless}}
         {
             "apiVersion": "2016-04-30-preview",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[parameters('vmName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                /*"[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",*/
+                {{#if isDiagnosticsEnabled}}
+                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+                {{/if}}
                 "[concat('Microsoft.Network/networkInterfaces/', parameters('nicName'))]"
             ],
             "properties": {
@@ -253,22 +349,23 @@
                         "createOption": "FromImage"
                     }
                 },
+                {{#if isDiagnosticsEnabled}}
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": "[parameters('enableBootDiagnostics')]",
+                        "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), variables('apiVersion')).primaryEndpoints.blob)]"
+                    }
+                }
+                {{/if}}
                 "networkProfile": {
                     "networkInterfaces": [
                         {
                             "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('nicName'))]"
                         }
                     ]
-                },
-                /* TODO gérer les diagnostics
-                "diagnosticsProfile": {
-                    "bootDiagnostics": {
-                        "enabled": true,
-                        "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), variables('apiVersion')).primaryEndpoints.blob)]"
-                    }
                 }
-                */
             }
         }
+        
     ]
 }
