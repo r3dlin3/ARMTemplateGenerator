@@ -53,8 +53,7 @@
         {{/unless}}
         {{/unless}}       
         {{#if remoteAccess}}
-        {
-            "networkSecurityGroupName": {
+        "networkSecurityGroupName": {
             "type": "string",
             "metadata": {
                 "description": "Name of the NSG for remote Access"
@@ -238,6 +237,7 @@
             }
         },
         {{/unless}}
+        {{#if existingVNET}}
         {{#unless existingSubnet}}
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
@@ -246,8 +246,9 @@
             "properties": {
                 "addressPrefix": "[parameters('subnetPrefix')]"
             }
-        }
+        },
         {{/unless}}
+        {{/if}}
         {{#if remoteAccess}}
         {
             "name": "[parameters('networkSecurityGroupName')]",
@@ -335,6 +336,7 @@
             ]
         },
         {{/if}}
+        {{#if isDiagnosticsEnabled}}
         {{#unless existingStorage}}
         {
             "type": "Microsoft.Storage/storageAccounts",
@@ -346,6 +348,7 @@
             }
         },
         {{/unless}}
+        {{/if}}
         {
             "apiVersion": "2016-04-30-preview",
             "type": "Microsoft.Compute/virtualMachines",
