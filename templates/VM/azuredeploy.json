@@ -52,6 +52,15 @@
         },
         {{/unless}}
         {{/unless}}       
+        {{#if remoteAccess}}
+        {
+            "networkSecurityGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the NSG for remote Access"
+            }
+        },
+        {{/if}}
         "nicName": {
             "type": "string",
             "metadata": {
@@ -239,6 +248,31 @@
             }
         }
         {{/unless}}
+        {{#if remoteAccess}}
+        {
+            "name": "[parameters('networkSecurityGroupName')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2016-09-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "default-allow-remoteaccess",
+                        "properties": {
+                            "priority": 1000,
+                            "sourceAddressPrefix": "*",
+                            "protocol": "Tcp",
+                            "destinationPortRange": {{#is osPublisher "MicrosoftWindowsServer"}}"3389"{{else}}22{{/is}},
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*"
+                        }
+                    }
+                ]
+            }
+        },
+        {{/if}}
         {
             "apiVersion": "2015-06-15",
             "type": "Microsoft.Network/networkInterfaces",
@@ -249,8 +283,11 @@
                 "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]",
                 {{/if}}
                 {{#unless existingVNET}}
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
                 {{/unless}}
+                {{#if remoteAccess}}
+                "[parameters('networkSecurityGroupName')]",
+                {{/if}}
             ],
             "properties": {
                 "ipConfigurations": [

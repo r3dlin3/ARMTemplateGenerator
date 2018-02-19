@@ -26,6 +26,11 @@
         "value": ""
     },
     {{/if}}
+    {{#if remoteAccess}}
+    "networkSecurityGroupName": {
+        "value": ""
+    }
+    {{/if}}
     {{#is privateIPtype "Static"}}
     "privateIP": {
         "value": ""

@@ -75,7 +75,6 @@ module.exports = function (plop) {
                     return answers.hasPublicIP;
                 },
             },
-            /*
             {
                 type: 'confirm',
                 name: 'remoteAccess',
@@ -84,7 +83,7 @@ module.exports = function (plop) {
                 when: function( answers ) {
                     return answers.hasPublicIP;
                 },
-            },*/
+            },
             {
                 type: 'list',
                 name: 'osPublisher',
