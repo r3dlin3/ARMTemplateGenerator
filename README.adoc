@@ -29,11 +29,11 @@ ARM template supports condition or loops however conditions or loops have a numb
 * Loops does not support 0. You must have at least one element.
 * In a "if" statement, both statements (in case of true or false) are evaluated, resulting on complex tricks to prevent errors
 
-Moreover, the use of nested templates are too complicated:
+Moreover, the use of nested templates are way too complicated:
 
-* By nature, they need to be uploaded somewhere, which is not as straight forward as Terrform files which are all included
+* By nature, they need to be uploaded somewhere, which is not as straight forward as Terraform files which are all included
 * 2 nested template (one template for NIC with or without public IP for instance) would need to share the same "interface", the same parameters.
-What's the point having a public DNS name withtout a public IP?
+What's the point having a public DNS name without a public IP?
 
 Finally, VM are quite complex (lots of objects). 
 So by using such generator as this one, answering questions on what you want to do, you would be able to have a template following best practices, without to copy-paste template and refactoring for your needs.
