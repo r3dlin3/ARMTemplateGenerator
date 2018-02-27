@@ -36,6 +36,14 @@
                  "description": "Name of the new or existing subnet"
              }
          },
+        {{#if existingVNET}}
+        "vnetResourceGroup": {
+            "type": "string",
+            "metadata": {
+                 "description": "Resource group of the new or existing VNET"
+             }
+         },
+        {{/if}}
         {{#unless existingVNET}}
         "vnetPrefix": {
            "type": "string",
@@ -195,7 +203,11 @@
         "publicIPAddressType": "{{publicIPtype}}",
         {{/if}}
         "storageAccountType": "{{storageAccountType}}",
+        {{#if existingVNET}}
+        "vnetID": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
+        {{else}}
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
+        {{/if}}
         "subnetID": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
         "apiVersion": "2015-06-15"
     },

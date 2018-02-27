@@ -8,6 +8,10 @@
     "subnetName": {
       "value": ""
     },
+    {{#if existingVNET}}
+    "vnetResourceGroup": {
+      "value": ""
+    },
     {{#unless existingVNET}}
     "vnetPrefix": {
       "value": ""
