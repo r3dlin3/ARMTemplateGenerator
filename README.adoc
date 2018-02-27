@@ -75,8 +75,6 @@ And the generated file:
 
 == TODO
 
-* VM: add remote access
-* VM: add diagnostic support
 * VM: add Azure Key Vault support
 * VM: add Backup support
 * Support tags
