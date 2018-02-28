@@ -89,7 +89,7 @@ module.exports = function (plop) {
                 name: 'osPublisher',
                 default: 0,
                 message: 'What is the OS?',
-                choices: ['MicrosoftWindowsServer', 'Canonical']
+                choices: ['MicrosoftWindowsServer', 'Canonical', 'RedHat']
             },
             {
                 type: 'list',
@@ -102,6 +102,8 @@ module.exports = function (plop) {
                             return  ['WindowsServer']
                         case 'Canonical':
                             return ['UbuntuServer']
+                        case 'RedHat':
+                            return ['RHEL']
                         default:
                             break;
                     }
@@ -126,6 +128,8 @@ module.exports = function (plop) {
                             "14.04.5-LTS",
                             "15.10",
                             "16.04.0-LTS"]
+                        case 'RHEL':
+                            return ['7.2']
                         default:
                             break;
                     }
