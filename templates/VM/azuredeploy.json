@@ -293,14 +293,14 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 {{#if hasPublicIP}}
-                "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]",
+                "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]"{{#if remoteAccess}},
+                "[parameters('networkSecurityGroupName')]"{{#unless existingVNET}},{{/unless}}
+                {{/if}}
                 {{/if}}
                 {{#unless existingVNET}}
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"{{#if remoteAccess}}
                 {{/unless}}
-                {{#if remoteAccess}}
-                "[parameters('networkSecurityGroupName')]",
-                {{/if}}
+                
             ],
             "properties": {
                 "ipConfigurations": [
