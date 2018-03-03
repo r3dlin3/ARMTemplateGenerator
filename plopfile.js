@@ -162,7 +162,13 @@ module.exports = function (plop) {
                 when: function (answers) {
                     return answers.isDiagnosticsEnabled;
                 }
-            }
+            },
+            {
+                type: 'confirm',
+                name: 'isADJoined',
+                default: false,
+                message: 'Do you want to join the VM to Active Directory?',
+            },
         ], // array of inquirer prompts
         actions: [
             {
