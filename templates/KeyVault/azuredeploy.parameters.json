@@ -1,0 +1,78 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "keyVaultName": {
+            "value": "{{name}}"
+        },
+        "accessPolicies": {
+            "value": [
+                {
+                    "tenantId": "example-guid",
+                    "objectId": "example-guid",
+                    "permissions": {
+                        "keys": [
+                            "all"
+                        ],
+                        "secrets": [
+                            "all"
+                        ]
+                    }
+                },
+                {
+                    "tenantId": "example-guid",
+                    "objectId": "example-guid",
+                    "permissions": {
+                        "keys": [
+                            "all"
+                        ],
+                        "secrets": [
+                            "all"
+                        ]
+                    }
+                }
+            ]
+        },
+        {{#if isDiagnosticsEnabled}}
+        "logsRetentionInDays": {
+            "value": 365
+        },
+        "diagnosticStorageAccountName": {
+            "value": ""
+        },
+        {{#unless existingStorage}}
+        "storageAccountType": {
+            "value": "Standard_LRS"
+        },
+        {{/unless}}
+        {{/if}}
+        {{#if createSecret}}
+        "secretsObject": {
+            "value": {
+                "secrets": [						
+                    {
+                        "secretName": "exampleSecret1",
+                        "secretValue": "secretVaule1"
+                    },
+                    {
+                        "secretName": "exampleSecret2",
+                        "secretValue": "secretValue2"
+                    }
+                ]
+            }
+        }
+        {{/if}}
+        "enableVaultForDeployment": {
+            "value": true
+        },
+        "enableVaultForTemplateDeployment": {
+            "value": true
+        },
+        "enableVaultForDiskEncryption": {
+            "value": true
+        },
+        "vaultSku": {
+            "value": "Standard"
+        }
+    }
+}
