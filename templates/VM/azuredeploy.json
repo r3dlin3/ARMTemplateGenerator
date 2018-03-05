@@ -179,7 +179,7 @@
         {{#unless existingStorage}}
         "storageAccountType": {
             "type": "string",
-            "allowedValues": ["Standard_LRS", "Standard_GRS"],
+            "allowedValues": ["Standard_LRS", "Standard_GRS", "Premium_LRS", "Standard_RAGRS", "Standard_ZRS"],
             "metadata": {
                 "description": "Type of storage account for VM diagnostics."
             }
