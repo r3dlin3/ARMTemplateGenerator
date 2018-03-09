@@ -75,6 +75,33 @@
       "value": ""
     },
     {{/if}}
+    {{#if isADJoined}}
+    "domainJoinUserName": {
+      "type": "string",
+      "metadata": {
+          "description": "Domain NetBiosName plus User name of a domain user with sufficient rights to perfom domain join operation. E.g. domain\\username"
+      }
+    },
+    "domainJoinUserPassword": {
+        "type": "securestring",
+        "metadata": {
+            "description": "Domain user password"
+        }
+    },
+    "domainToJoin": {
+        "type": "string",
+        "metadata": {
+            "description": "Domain FQDN where the virtual machine will be joined"
+        }
+    },
+    "ouPath": {
+        "type": "string",
+        "defaultValue": "",
+        "metadata": {
+            "description": "Specifies an organizational unit (OU) for the domain account. Enter the full distinguished name of the OU in quotation marks. Example: OU=testOU; DC=domain; DC=Domain; DC=com"
+        }
+    }
+    {{/if}}
     "vmSize": {
         "value": ""
     },

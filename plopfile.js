@@ -162,7 +162,13 @@ module.exports = function (plop) {
                 when: function (answers) {
                     return answers.isDiagnosticsEnabled;
                 }
-            }
+            },
+            {
+                type: 'confirm',
+                name: 'isADJoined',
+                default: false,
+                message: 'Do you want to join the VM to Active Directory?',
+            },
         ], // array of inquirer prompts
         actions: [
             {
@@ -174,6 +180,58 @@ module.exports = function (plop) {
                 type: "add",
                 path: "generated/{{camelCase name}}.json",
                 templateFile: "templates/VM/azuredeploy.json"
+            },
+
+        ]  // array of actions
+    });
+
+    plop.setGenerator('Key Vault', {
+        description: 'This module generates ARM template file for a Azure Key Vault',
+        prompts: [
+            {
+                type: 'input',
+                name: 'name',
+                message: 'What is the template name?',
+                validate: validateRequired
+            },
+            {
+                type: 'confirm',
+                name: 'createSecret',
+                default: true,
+                message: 'Do you want to provision a secret?'
+            },
+            {
+                type: 'confirm',
+                name: 'isDiagnosticsEnabled',
+                default: false,
+                message: 'Do you want to enable diagnostics?',
+            },
+            {
+                type: 'confirm',
+                name: 'existingStorage',
+                default: false,
+                message: 'Do you want to use an existing storage account?',
+                when: function (answers) {
+                    return answers.isDiagnosticsEnabled;
+                }
+            },  
+            {
+                type: 'confirm',
+                name: 'isProtectWithLocks',
+                default: false,
+                message: 'Do you want to lock the Key Vault?',
+            }, 
+        ], // array of inquirer prompts
+        actions: [
+            {
+                type: "add",
+                path: "generated/{{camelCase name}}.parameters.json",
+                templateFile: "templates/KeyVault/azuredeploy.parameters.json"
+            },
+            {
+                type: "add",
+                path: "generated/{{camelCase name}}.json",
+                templateFile: "templates/KeyVault/azuredeploy.json"
             },
 
         ]  // array of actions

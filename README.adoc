@@ -20,7 +20,7 @@ ARMTemplateGenerator is a CLI to generate ARM templates.
 
 It is based on plop. Instead of a ton of parameters, the CLI will ask questions to generate the ARM template and its associated parameter file.
 
-At this moment, only VM templates can be generated (only one plop module).
+At this moment, only VM and Azure Key Vault templates can be generated.
 
 === Why create or use ARMTemplateGenerator?
 
