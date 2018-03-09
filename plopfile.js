@@ -168,7 +168,7 @@ module.exports = function (plop) {
                 name: 'isADJoined',
                 default: false,
                 message: 'Do you want to join the VM to Active Directory?',
-            },
+            }
         ], // array of inquirer prompts
         actions: [
             {
@@ -180,8 +180,7 @@ module.exports = function (plop) {
                 type: "add",
                 path: "generated/{{camelCase name}}.json",
                 templateFile: "templates/VM/azuredeploy.json"
-            },
-
+            }
         ]  // array of actions
     });
 

@@ -226,7 +226,7 @@
             "metadata": {
                  "description": "Name of the VM"
              }
-         }
+        }
     },
     "variables": {
         "imagePublisher": "{{osPublisher}}",
@@ -247,7 +247,7 @@
     },
     "resources": [
         {{#if hasPublicIP}}
-       {
+        {
             "apiVersion": "2015-06-15",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[parameters('publicIPAddressName')]",
@@ -332,7 +332,7 @@
                 {{/if}}
                 {{/if}}
                 {{#unless existingVNET}}
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"{{#if remoteAccess}}
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
                 {{/unless}}
                 
             ],
@@ -410,18 +410,17 @@
                 "typeHandlerVersion": "1.3",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                "Name": "[parameters('domainToJoin')]",
-                "OUPath": "[parameters('ouPath')]",
-                "User": "[concat(parameters('domainToJoin'), '\\', parameters('domainUsername'))]",
-                "Restart": "true",
-                "Options": "[parameters('domainJoinOptions')]"
+                    "Name": "[parameters('domainToJoin')]",
+                    "OUPath": "[parameters('ouPath')]",
+                    "User": "[concat(parameters('domainToJoin'), '\\', parameters('domainUsername'))]",
+                    "Restart": "true",
+                    "Options": "[parameters('domainJoinOptions')]"
                 },
                 "protectedSettings": {
-                "Password": "[parameters('domainPassword')]"
+                    "Password": "[parameters('domainPassword')]"
                 }
             }
-        }
- 
+        },
         {{/if}}
         {
             "apiVersion": "2016-04-30-preview",
@@ -469,7 +468,7 @@
                         "enabled": "[parameters('enableBootDiagnostics')]",
                         "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), variables('apiVersion')).primaryEndpoints.blob)]"
                     }
-                }
+                },
                 {{/if}}
                 "networkProfile": {
                     "networkInterfaces": [
