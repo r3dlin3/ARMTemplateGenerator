@@ -168,7 +168,14 @@ module.exports = function (plop) {
                 name: 'isADJoined',
                 default: false,
                 message: 'Do you want to join the VM to Active Directory?',
-            }
+            },
+            {
+                type: 'input',
+                name: 'nbExtension',
+                default: 0,
+                message: 'How many VM extensions do you want to add?',
+                validate: validateUnsignedInteger
+            },
         ], // array of inquirer prompts
         actions: [
             {
