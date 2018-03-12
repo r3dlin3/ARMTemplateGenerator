@@ -236,7 +236,6 @@
         {{#if hasPublicIP}}
         "publicIPAddressType": "{{publicIPtype}}",
         {{/if}}
-        "storageAccountType": "{{storageAccountType}}",
         {{#if existingVNET}}
         "vnetID": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
         {{else}}
@@ -412,12 +411,12 @@
                 "settings": {
                     "Name": "[parameters('domainToJoin')]",
                     "OUPath": "[parameters('ouPath')]",
-                    "User": "[concat(parameters('domainToJoin'), '\\', parameters('domainUsername'))]",
+                    "User": "[concat(parameters('domainToJoin'), '\\', parameters('domainJoinUserName'))]",
                     "Restart": "true",
                     "Options": "[parameters('domainJoinOptions')]"
                 },
                 "protectedSettings": {
-                    "Password": "[parameters('domainPassword')]"
+                    "Password": "[parameters('domainJoinUserPassword')]"
                 }
             }
         },
