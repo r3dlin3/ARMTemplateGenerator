@@ -220,6 +220,15 @@ module.exports = function (plop) {
                 default: false,
                 message: 'Do you want to lock the Key Vault?',
             }, 
+            {
+                // The property enableSoftDelete does not support false value \o/
+                // Therefore, we manage the presence of this property with 
+                // a new flag
+                type: 'confirm',
+                name: 'enableSoftDelete',
+                default: false,
+                message: 'Do you want to enable soft delete?',
+            }, 
         ], // array of inquirer prompts
         actions: [
             {
