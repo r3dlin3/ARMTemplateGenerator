@@ -78,6 +78,8 @@ And the generated file:
 1) Login to Azure
 ----
 Login-AzureRmAccount
+Get-AzureRmSubscription
+Set-AzureRmContext -SubscriptionId <subscription ID>
 ----
 Or 
 ----
@@ -86,7 +88,7 @@ Import-AzureRmContext -Path tomycontext
 2) Create resource AzureRmResourceGroup
 ----
 $rg="myrg"
-New-AzureRmResourceGroup $rg
+New-AzureRmResourceGroup $rg -Location "West Europe"
 ----
 3) Deploy
 ----
