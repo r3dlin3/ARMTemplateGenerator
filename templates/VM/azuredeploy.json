@@ -226,6 +226,10 @@
             "metadata": {
                  "description": "Name of the VM"
              }
+        },
+        "tagValues": {
+            "type": "object",
+            "defaultValue": {}
         }
     },
     "variables": {
