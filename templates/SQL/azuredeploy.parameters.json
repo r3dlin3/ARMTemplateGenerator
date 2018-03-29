@@ -1,0 +1,20 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminLogin": {
+            "value": "exampleadmin"
+        },
+        "adminPassword": {
+            "reference": {
+              "keyVault": {
+                "id": "/subscriptions/a02537c6-7d2b-4815-aefd-e89ed37eec54/resourceGroups/CDM1TLABRSGF07/providers/Microsoft.KeyVault/vaults/CDM1TSHAKVT04"
+              },
+              "secretName": "examplesecret"
+            }
+        },
+        "sqlServerName": {
+            "value": "CDM1TSHASQL99"
+        }
+    }
+}

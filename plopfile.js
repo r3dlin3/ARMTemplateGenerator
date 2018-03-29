@@ -227,6 +227,15 @@ module.exports = function (plop) {
                 default: false,
                 message: 'Do you want to lock the Key Vault?',
             }, 
+            {
+                // The property enableSoftDelete does not support false value \o/
+                // Therefore, we manage the presence of this property with 
+                // a new flag
+                type: 'confirm',
+                name: 'enableSoftDelete',
+                default: false,
+                message: 'Do you want to enable soft delete?',
+            }, 
         ], // array of inquirer prompts
         actions: [
             {
@@ -238,6 +247,87 @@ module.exports = function (plop) {
                 type: "add",
                 path: "generated/{{camelCase name}}.json",
                 templateFile: "templates/KeyVault/azuredeploy.json"
+            },
+
+        ]  // array of actions
+    });
+
+    plop.setGenerator('SQL', {
+        description: 'This module generates ARM template file for a SQL Server and/or Database',
+        prompts: [
+            {
+                type: 'input',
+                name: 'name',
+                message: 'What is the template name?',
+                validate: validateRequired
+            },
+            {
+                type: 'confirm',
+                name: 'enableAudit',
+                default: true,
+                message: 'Do you want to enable Audit at the server level?'
+            },
+            {
+                type: 'confirm',
+                name: 'enableThreatDetection',
+                default: false,
+                message: 'Do you want to enable threat Detection at the server level?',
+                when: function (answers) {
+                    return answers.enableAudit;
+                }
+            },
+            {
+                type: 'confirm',
+                name: 'createDB',
+                default: false,
+                message: 'Do you want to create a database?'
+            },    
+            {
+                type: 'confirm',
+                name: 'enableDBAudit',
+                default: true,
+                message: 'Do you want to enable audit at the database level?',
+                when: function (answers) {
+                    return (answers.createDB && !(answers.enableAudit));
+                }
+            },
+            {
+                type: 'confirm',
+                name: 'enableDBThreatDetection',
+                default: true,
+                message: 'Do you want to enable Threat Detection at the database level?',
+                when: function (answers) {
+                    return answers.createDB && !(answers.enableAudit) && answers.enableDBAudit;
+                }
+            },
+            {
+                type: 'confirm',
+                name: 'existingStorage',
+                default: false,
+                message: 'Do you want to use an existing storage account?',
+                when: function (answers) {
+                    return answers.enableAudit||answers.enableDBAudit;
+                }
+            },   
+            {
+                type: 'confirm',
+                name: 'useKeyVault',
+                default: false,
+                message: 'Do you want to use a Key Vault for password?',
+            }, 
+
+            
+        ], // array of inquirer prompts
+        actions: [
+            {
+                type: "add",
+                path: "generated/{{camelCase name}}.parameters.json",
+                templateFile: "templates/SQL/azuredeploy.parameters.json"
+            },
+            {
+                type: "add",
+                path: "generated/{{camelCase name}}.json",
+                templateFile: "templates/SQL/azuredeploy.json"
             },
 
         ]  // array of actions

@@ -73,6 +73,28 @@ And the generated file:
 * link:assets/azuredeploy.json[The ARM template]
 * link:assets/azuredeploy.parameters.json[The parameters]
 
+== Reminder
+=== Deploy a template
+1) Login to Azure
+----
+Login-AzureRmAccount
+Get-AzureRmSubscription
+Set-AzureRmContext -SubscriptionId <subscription ID>
+----
+Or 
+----
+Import-AzureRmContext -Path tomycontext
+----
+2) Create resource AzureRmResourceGroup
+----
+$rg="myrg"
+New-AzureRmResourceGroup $rg -Location "West Europe"
+----
+3) Deploy
+----
+New-AzureRmResourceGroupDeployment -ResourceGroupName $rg -TemplateFile .\generated\mytemplate.json -TemplateParameterFile .\generated\mytemplate.parameters.json -verbose
+----
+
 == TODO
 
 * VM: add Azure Key Vault support

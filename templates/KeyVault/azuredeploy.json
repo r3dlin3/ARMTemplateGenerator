@@ -184,6 +184,9 @@
                 "enabledForDeployment": "[parameters('enableVaultForDeployment')]",
                 "enabledForTemplateDeployment": "[parameters('enableVaultForTemplateDeployment')]",
                 "enabledForDiskEncryption": "[parameters('enableVaultForDiskEncryption')]",
+                {{#if enableSoftDelete}}
+                "enableSoftDelete": true,
+                {{/if}}
                 "tenantId": "[parameters('tenantId')]",
                 "accessPolicies": "[parameters('AccessPolicies')]",
                 "sku": {
