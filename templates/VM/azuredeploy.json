@@ -470,7 +470,7 @@
                 {{#if isDiagnosticsEnabled}}
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
-                        "enabled": "[parameters('enableBootDiagnostics')]",
+                        "enabled": true,
                         "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), variables('apiVersion')).primaryEndpoints.blob)]"
                     }
                 },
