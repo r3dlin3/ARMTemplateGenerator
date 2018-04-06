@@ -173,12 +173,12 @@ module.exports = function (plop) {
         actions: [
             {
                 type: "add",
-                path: "generated/{{camelCase name}}.parameters.json",
+                path: "generated/{{name}}.parameters.json",
                 templateFile: "templates/VM/azuredeploy.parameters.json"
             },
             {
                 type: "add",
-                path: "generated/{{camelCase name}}.json",
+                path: "generated/{{name}}.json",
                 templateFile: "templates/VM/azuredeploy.json"
             }
         ]  // array of actions
