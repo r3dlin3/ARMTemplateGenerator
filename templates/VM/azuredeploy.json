@@ -163,13 +163,6 @@
         },
         {{/if}}
         {{#if isDiagnosticsEnabled}}
-        "enableDiagnostics": {
-            "type": "bool",
-            "defaultValue": true,
-            "metadata": {
-                "description": "Enable or disable VM diagnostics."
-            }
-        },
         "storageName": {
             "type": "string",
             "metadata": {
