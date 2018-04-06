@@ -432,7 +432,9 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 {{#if isDiagnosticsEnabled}}
-                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+                {{#unless existingStorage}}
+                "[concat('Microsoft.Storage/storageAccounts/', parameters('storageName'))]",
+                {{/unless}}
                 {{/if}}
                 "[concat('Microsoft.Network/networkInterfaces/', parameters('nicName'))]"
             ],
