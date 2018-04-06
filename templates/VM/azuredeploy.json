@@ -169,6 +169,13 @@
                 "description": "Storage account for VM diagnostics."
             }
         },
+        {{#if existingStorage}}
+        "storageAccountResourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource group of the existing storage account."
+            }
+        },
         {{#unless existingStorage}}
         "storageAccountType": {
             "type": "string",
@@ -463,8 +470,8 @@
                 {{#if isDiagnosticsEnabled}}
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
-                        "enabled": true,
-                        "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageName'), variables('apiVersion')).primaryEndpoints.blob)]"
+                        "enabled": "true",
+                        "storageUri": "[reference(resourceId({{#if existingStorage}}parameters('storageAccountResourceGroup'),{{/if}}'Microsoft.Storage/storageAccounts/', parameters('storageName')), variables('apiVersion')).primaryEndpoints.blob]"
                     }
                 },
                 {{/if}}

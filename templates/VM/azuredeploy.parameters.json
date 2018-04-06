@@ -59,6 +59,11 @@
     "storageName": {
       "value": ""
     },
+    {{#if existingStorage}}
+    "storageAccountResourceGroup": {
+        "value": ""
+    }
+    {{/if}}
     {{#unless existingStorage}}
     "storageAccountType": {
       "value": ""
