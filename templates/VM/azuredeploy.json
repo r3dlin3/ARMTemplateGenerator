@@ -176,6 +176,7 @@
                 "description": "The resource group of the existing storage account."
             }
         },
+        {{/if}}
         {{#unless existingStorage}}
         "storageAccountType": {
             "type": "string",
