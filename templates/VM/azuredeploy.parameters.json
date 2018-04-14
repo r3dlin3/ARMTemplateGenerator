@@ -59,6 +59,11 @@
     "storageName": {
       "value": ""
     },
+    {{#if existingStorage}}
+    "storageAccountResourceGroup": {
+        "value": ""
+    }
+    {{/if}}
     {{#unless existingStorage}}
     "storageAccountType": {
       "value": ""
@@ -66,7 +71,7 @@
     {{/unless}}
     {{/if}}
     "vmName": {
-      "value": ""
+      "value": "{{name}}"
     },
     {{#if hasAutoShutdown}}
     "autoShutdownDailyRecurrence": {
