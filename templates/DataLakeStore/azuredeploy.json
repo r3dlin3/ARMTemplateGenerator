@@ -1,0 +1,127 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dataLakeStoreName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Data Lake Store account to create. Can only contains lowercase letters and numbers."
+            }
+        },
+        {{#if useKeyVault}}
+        "keyVaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "The Azure Key Vault name."
+            }
+        },
+        "encryptionKeyName": {
+            "type": "string",
+            "metadata": {
+                "description": "The Azure Key Vault encryption key name."
+            }
+        },
+        "encryptionKeyVersion": {
+            "type": "string",
+            "metadata": {
+                "description": "The Azure Key Vault encryption key version."
+            }
+        },
+        {{/if}}
+        {{#if createFirewallRules}}
+        "firewallRules": {
+           "type": "array",
+           "metadata": {
+                "description": "Array of firewall rules (JSON object) with firewallRulesName, firewallRulesStartIpAddress and firewallRulesEndIpAddress"
+            }
+        },
+        "allowAzureIps": {
+           "type": "string",
+           "defaultValue": "Enabled", 
+           "allowedValues": [
+               "Enabled",
+               "Disabled"
+           ]
+           "metadata": {
+                "description": "Allow access from Azure services"
+            }
+        }
+        {{/if}}
+        "dataLakeStoreNewTier": {
+            "type": "string",
+            "allowedValues": [
+                "Consumption"
+            ]
+        },
+        "tagValues": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "allowedValues": [
+                "East US 2",
+                "eastus2",
+                "Central US",
+                "centralus",
+                "North Europe",
+                "northeurope",
+                "West Europe",
+                "westeurope"
+            ],
+            "metadata": {
+                "description": "The region to deploy the resources into"
+            }
+        }
+    },
+    "variables": {
+        "ApiVersion": "2016-11-01"
+    },
+    "resources": [
+        {
+            "apiVersion": "[variables('ApiVersion')]",
+            "name": "[parameters('dataLakeStoreName')]",
+            "location": "[parameters('location')]",
+            "type": "Microsoft.DataLakeStore/accounts",
+            "properties": {
+                {{#if createFirewallRules}}
+                "firewallState": "Enabled",
+                "firewallAllowAzureIps": "Disabled",
+                {{/if}}
+                "newTier": "[parameters('dataLakeStoreNewTier')]",
+                "encryptionState": "Enabled"{{#if useKeyVault}},
+                "encryptionConfig": {
+                    "type": "UserManaged",
+                    "keyVaultMetaInfo": {
+                        "keyVaultResourceId": "[resourceId('Microsoft.KeyVault/vaults/', parameters('keyVaultName'))]",
+                        "encryptionKeyName": "[parameters('encryptionKeyName')]",
+                        "encryptionKeyVersion": "[parameters('encryptionKeyVersion')]"
+                    }
+                }
+                {{/if}}
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "tags": "[parameters('tagValues')]"
+        }{{#if createFirewallRules}},
+        {
+            "apiVersion": "[variables('ApiVersion')]",
+            "name": "[concat(parameters('dataLakeStoreName'), '/', parameters('firewallRules')[copyIndex()].firewallRulesName)]",
+            "type": "Microsoft.DataLakeStore/accounts/firewallRules",
+            "properties": {
+                "startIpAddress": "[parameters('firewallRules')[copyIndex()].firewallRulesStartIpAddress]",
+                "endIpAddress": "[parameters('firewallRules')[copyIndex()].firewallRulesEndIpAddress]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.DataLakeStore/accounts', parameters('dataLakeStoreName'))]"
+            ],
+            "copy": {
+                "name": "fwrulecopy",
+                "count": "[length(parameters('firewallRules'))]"
+            }
+        }
+        {{/if}}
+    ]
+}
