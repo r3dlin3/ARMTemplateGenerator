@@ -10,7 +10,7 @@
             "value": ""
         },
         "encryptionKeyName": {
-            "value": ""
+            "value": "{{lowerCase name}}-datalake"
         },
         "encryptionKeyVersion": {
             "value": ""

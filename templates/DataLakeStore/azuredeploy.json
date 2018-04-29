@@ -41,11 +41,11 @@
            "allowedValues": [
                "Enabled",
                "Disabled"
-           ]
+           ],
            "metadata": {
                 "description": "Allow access from Azure services"
             }
-        }
+        },
         {{/if}}
         "dataLakeStoreNewTier": {
             "type": "string",
