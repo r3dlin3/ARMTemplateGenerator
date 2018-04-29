@@ -1,4 +1,5 @@
 var repeatHelper = require('handlebars-helper-repeat');
+const chalk = require('chalk');
 
 
 function validateRequired(value) {
@@ -11,6 +12,7 @@ function validateUnsignedInteger(value) {
 }
 
 module.exports = function (plop) {
+    // helpers for template generation
     plop.setHelper('repeat', repeatHelper);
     plop.setHelper('is', function (arg1, arg2, opts) {
         if (arg1 == arg2) {
@@ -26,6 +28,13 @@ module.exports = function (plop) {
             return opts.inverse(this)
         }
     });
+    plop.setActionType('printHelpDeployment', function (answers, config, plop) {
+        // do something
+        console.log(chalk.yellow('To deploy your template, use the following PowerShell cmdlet:'));
+        console.log(chalk.yellow('New-AzureRmResourceGroupDeployment -ResourceGroupName <ResourceGroupName> -verbose -TemplateFile .\\generated\\'+answers.name+'.json -TemplateParameterFile .\\generated\\'+answers.name+'.parameters.json'));
+        return '';
+    });
+
     // create your generators here
     plop.setGenerator('VM', {
         description: 'This module generates ARM template file for a VM',
@@ -328,7 +337,7 @@ module.exports = function (plop) {
                 type: "add",
                 path: "generated/{{name}}.json",
                 templateFile: "templates/SQL/azuredeploy.json"
-            },
+            }
 
         ]  // array of actions
     });
@@ -374,6 +383,9 @@ module.exports = function (plop) {
                 type: "add",
                 path: "generated/{{name}}.json",
                 templateFile: "templates/DataLakeStore/azuredeploy.json"
+            },
+            {
+                type: "printHelpDeployment"
             }
         ]  // array of actions
     })
