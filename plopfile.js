@@ -362,15 +362,6 @@ module.exports = function (plop) {
                 name: 'useKeyVault',
                 default: true,
                 message: 'Do you want to use a Key Vault for encryption?'
-            },
-            {
-                type: 'confirm',
-                name: 'useExistingKeyVault',
-                default: true,
-                when: function( answers ) {
-                    return answers.useKeyVault;
-                  },
-                message: 'Do you want to use an existing Key Vault?',
             }
         ], // array of inquirer prompts
         actions: [
