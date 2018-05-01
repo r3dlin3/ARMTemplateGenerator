@@ -50,10 +50,12 @@
         "dataLakeStoreNewTier": {
             "type": "string",
             "allowedValues": [
-                "Consumption"
+                "Consumption","Commitment_1TB", "Commitment_10TB", 
+                "Commitment_100TB", "Commitment_500TB",
+                "Commitment_1PB", "Commitment_5PB"
             ]
         },
-        "tagValues": {
+        "tags": {
             "type": "object",
             "defaultValue": {}
         },
@@ -104,7 +106,7 @@
             "identity": {
                 "type": "SystemAssigned"
             },
-            "tags": "[parameters('tagValues')]"
+            "tags": "[parameters('tags')]"
         }{{#if createFirewallRules}},
         {
             "apiVersion": "[variables('ApiVersion')]",
