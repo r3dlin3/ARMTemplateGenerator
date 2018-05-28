@@ -272,8 +272,17 @@ module.exports = function (plop) {
             },
             {
                 type: 'confirm',
+                name: 'existingServer',
+                default: false,
+                message: 'Do you want to use an existing SQL Server?'
+            },
+            {
+                type: 'confirm',
                 name: 'enableAudit',
                 default: true,
+                when: function (answers) {
+                    return answers.existingServer;
+                },
                 message: 'Do you want to enable Audit at the server level?'
             },
             {
@@ -282,13 +291,13 @@ module.exports = function (plop) {
                 default: false,
                 message: 'Do you want to enable threat Detection at the server level?',
                 when: function (answers) {
-                    return answers.enableAudit;
+                    return answers.enableAudit && answers.existingServer;
                 }
             },
             {
                 type: 'confirm',
                 name: 'createDB',
-                default: false,
+                default: true,
                 message: 'Do you want to create a database?'
             },    
             {
@@ -315,7 +324,7 @@ module.exports = function (plop) {
                 default: false,
                 message: 'Do you want to use an existing storage account?',
                 when: function (answers) {
-                    return answers.enableAudit||answers.enableDBAudit;
+                    return answers.enableAudit || answers.enableDBAudit;
                 }
             },   
             {
