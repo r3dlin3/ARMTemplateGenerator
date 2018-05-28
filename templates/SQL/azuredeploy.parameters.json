@@ -8,13 +8,13 @@
         "adminPassword": {
             "reference": {
               "keyVault": {
-                "id": "/subscriptions/a02537c6-7d2b-4815-aefd-e89ed37eec54/resourceGroups/CDM1TLABRSGF07/providers/Microsoft.KeyVault/vaults/CDM1TSHAKVT04"
+                "id": ""
               },
               "secretName": "examplesecret"
             }
         },
         "sqlServerName": {
-            "value": "CDM1TSHASQL99"
+            "value": "XXX"
         }
     }
 }

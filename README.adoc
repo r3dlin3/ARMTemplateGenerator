@@ -25,6 +25,7 @@ At this moment, ARMTemplateGenerator supports:
 * VM
 * Azure Key Vault
 * Azure Data Lake Store
+* Azure App Service
 
 === Why create or use ARMTemplateGenerator?
 
@@ -104,5 +105,5 @@ New-AzureRmResourceGroupDeployment -ResourceGroupName $rg -TemplateFile .\genera
 * VM: add Azure Key Vault support
 * VM: add Backup support
 * Support tags
-* New module for WebApp (AppInsights, WebTest, AzureCDN, DB?)
+* New module for Azure SQL
 

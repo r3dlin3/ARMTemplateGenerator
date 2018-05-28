@@ -1,0 +1,59 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "siteName": {
+      "value": "{{name}}"
+    },
+    "appServicePlanName": {
+      "value": ""
+    },
+    "skuName": {
+      "value": "F1"
+    },
+    "capacity": {
+      "value": 1
+    },
+    {{#if createSlot}}
+    "environments": {
+        "value": ["Dev","QA","UAT","Preview"]
+    },
+    {{/if}}
+    {{#if createAppInsights}}
+    "AppInsightsName": {
+        "type": "string",
+        "metadata": {
+          "description": "Name of the Application Insights."
+        }
+      },
+    {{/if}}
+    {{#if createCDN}}
+    "CDNProfileName": {
+      "value": ""
+    },
+    "CDNEndpointName": {
+      "value": ""
+    },
+    "CDNSku": {
+      "value": ""
+    },
+    {{/if}}
+    {{#if createCache}}
+    "cacheName": {
+      "value": "",
+    },
+    "cacheSKUName": {
+      "value": "Basic",
+    },
+    "cacheSKUFamily": {
+      "value": "C"
+    },
+    "cacheSKUCapacity": {
+      "value": 0,
+    },
+    {{/if}}
+    "tags": {
+      "value": {}
+    }
+  }
+}
