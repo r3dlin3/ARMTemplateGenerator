@@ -300,9 +300,8 @@
                         "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName'))).InstrumentationKey]"
                         {{/if}}
                     }
-                }
-                {{#if createAppInsights}}
-                ,{
+                }{{#if createAppInsights}},
+                {
                     "apiVersion": "2015-08-01",
                     "name": "[concat(parameters('siteName'),'/Microsoft.ApplicationInsights.AzureWebSites')]",
                     "type": "Microsoft.Web/sites/siteextensions",
