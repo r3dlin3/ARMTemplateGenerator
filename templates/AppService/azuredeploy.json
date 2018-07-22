@@ -296,6 +296,9 @@
                         "logsDirectorySizeLimit": 40,
                         "detailedErrorLoggingEnabled": true,
                         "scmType": "LocalGit"
+                        {{#if createAppInsights}}
+                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName'))).InstrumentationKey]"
+                        {{/if}}
                     }
                 }
                 {{#if createAppInsights}}
