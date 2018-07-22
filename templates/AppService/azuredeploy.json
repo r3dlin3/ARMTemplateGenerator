@@ -298,6 +298,20 @@
                         "scmType": "LocalGit"
                     }
                 }
+                {{#if createAppInsights}}
+                ,{
+                    "apiVersion": "2015-08-01",
+                    "name": "[concat(parameters('siteName'),'/Microsoft.ApplicationInsights.AzureWebSites')]",
+                    "type": "Microsoft.Web/sites/siteextensions",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+                    ],
+                    "properties": {
+                        "version": "2.6.5"
+                    }
+                }
+                {{/if}}
             ]
         }
     ]

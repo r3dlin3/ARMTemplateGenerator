@@ -21,11 +21,8 @@
     {{/if}}
     {{#if createAppInsights}}
     "AppInsightsName": {
-        "type": "string",
-        "metadata": {
-          "description": "Name of the Application Insights."
-        }
-      },
+      "value": ""
+    }
     {{/if}}
     {{#if createCDN}}
     "CDNProfileName": {
