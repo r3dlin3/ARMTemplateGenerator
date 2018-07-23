@@ -278,6 +278,15 @@ module.exports = function (plop) {
             },
             {
                 type: 'confirm',
+                name: 'enableFirewall',
+                default: false,
+                message: 'Do you want to enable the firewall?',
+                when: function (answers) {
+                    return answers.existingServer;
+                },
+            },
+            {
+                type: 'confirm',
                 name: 'enableAudit',
                 default: true,
                 when: function (answers) {
@@ -326,14 +335,15 @@ module.exports = function (plop) {
                 when: function (answers) {
                     return answers.enableAudit || answers.enableDBAudit;
                 }
-            },   
+            },
+            /*
             {
                 type: 'confirm',
                 name: 'useKeyVault',
                 default: false,
                 message: 'Do you want to use a Key Vault for password?',
             }, 
-
+            */
             
         ], // array of inquirer prompts
         actions: [

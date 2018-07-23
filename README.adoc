@@ -105,5 +105,8 @@ New-AzureRmResourceGroupDeployment -ResourceGroupName $rg -TemplateFile .\genera
 
 * VM: add Azure Key Vault support
 * VM: add Backup support
+* SQL: Add georeplication support
+* SQL: Add TDE encryption with Key Vault
+* SQL: Add Long-Term backup
 
 

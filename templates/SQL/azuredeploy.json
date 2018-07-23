@@ -42,14 +42,42 @@
         "Premium"
       ],
       "metadata": {
-        "description": "The SQL server edition"
+        "description": "The SQL database edition"
+      }
+    },
+    "sqlDatabaseMaxSizeBytes": {
+      "type": "string",
+      "defaultValue": "268435456000",
+      "metadata": {
+        "description": "The SQL Databse max size"
       }
     },
     "sqldatabaseRequestedServiceObjectiveName": {
       "type": "string",
       "defaultValue": "Basic",
       "allowedValues": [
-        "Free", "Basic", "S0", "S1", "S2","S3","S4","S6","S7","S9","S12", "P1", "P2", "P3", "P4", "P6", "P11", "P15", "PRS1", "PRS2", "PRS4", "PRS6"
+        "Free",
+        "Basic",
+        "S0",
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S6",
+        "S7",
+        "S9",
+        "S12",
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P6",
+        "P11",
+        "P15",
+        "PRS1",
+        "PRS2",
+        "PRS4",
+        "PRS6"
       ],
       "metadata": {
         "description": "Describes the performance level for Edition"
@@ -113,6 +141,20 @@
     "ApiVersion": "[variables('ApiVersion')]"
   },
   "resources": [
+    {{#unless existingStorage}}
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      },
+      "kind": "StorageV2",
+      "name": "[parameters('storageName')]",
+      "apiVersion": "2018-02-01",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]"
+    },
+    {{/unless}}
+    {{#unless existingServer}}
     {
       "name": "[parameters('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
@@ -125,24 +167,25 @@
         "version": "12.0"
       }
     },
+    {{/unless}}
     {
       "name": "[concat(parameters('sqlServerName'),'/',parameters('sqlDatabaseName'))]",
       "type": "Microsoft.Sql/servers/databases",
       "location": "[parameters('location')]",
       "apiVersion": "2014-04-01",
+      {{#unless existingServer}}
       "dependsOn": [
         "[parameters('sqlServerName')]"
       ],
-      "tags": {
-        "displayName": "SQL Database"
-      },
+      {{/unless}}
+      "tags": "[parameters('tags')]",
       "properties": {
         "collation": "[parameters('sqlDatabaseCollation')]",
         "edition": "[parameters('sqlDatabaseEdition')]",
-        "maxSizeBytes": "1073741824",
+        "maxSizeBytes": "[parameters('sqlDatabaseMaxSizeBytes')]",
         "requestedServiceObjectiveName": "[parameters('sqldatabaseRequestedServiceObjectiveName')]"
       }
-    },
+    }{{#if enableFirewall}},
     {
       "apiVersion": "[variables('ApiVersion')]",
       "name": "[concat(parameters('sqlServerName'), '/AllowAllWindowsAzureIps')]",
@@ -171,7 +214,8 @@
         "name": "fwrulecopy",
         "count": "[length(parameters('firewallRules'))]"
       }
-    },
+    }
+    {{/if}}
   ],
   "outputs": {}
 }
