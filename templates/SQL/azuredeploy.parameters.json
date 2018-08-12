@@ -2,19 +2,62 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "adminLogin": {
-            "value": "exampleadmin"
-        },
-        "adminPassword": {
-            "reference": {
-              "keyVault": {
-                "id": ""
-              },
-              "secretName": "examplesecret"
-            }
-        },
         "sqlServerName": {
-            "value": "XXX"
-        }
+            "value": "{{name}}"
+        },
+        {{#unless existingServer}}
+        "sqlServerAdminLogin": {
+            "value": ""
+        },
+        "sqlServerAdminPassword": {
+            "value": ""
+        },
+        {{#if enableFirewall}}
+        "firewallRules": {
+            "value": [{
+              "firewallRulesName":"",
+              "firewallRulesStartIpAddress":"",
+              "firewallRulesEndIpAddress":""
+            }]
+        },
+        "allowAzureIps": {
+            "value": "Enabled"
+        },
+        {{/if}}
+        {{#if enableAudit}}
+        "storageName": {
+            "value": ""
+        },
+        "auditRetentionDays": {
+            "value": "0"
+        },
+        {{#if existingStorage}}
+        "storageAccountResourceGroup": {
+          "value": ""
+        },
+        {{else}}
+        "storageAccountType": {
+          "value": "Standard_LRS"
+        },
+        {{/if}}
+        {{/if}}
+        {{/unless}} {{!-- existingServer --}}
+        {{#if createDB}}
+        "sqlDatabaseName": {
+            "value": ""
+        },
+        "sqlDatabaseCollation": {
+            "value": "SQL_Latin1_General_CP1_CI_AS"
+        },
+        "sqlDatabaseEdition": {
+            "value": "Basic"
+        },
+        "sqlDatabaseMaxSizeBytes": {
+            "value": "2147483648"
+        },
+        {{/if}}
+        "tags": {
+          "value": {}
+        },
     }
 }

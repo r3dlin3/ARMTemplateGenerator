@@ -44,7 +44,7 @@ module.exports = function (plop) {
                 name: 'name',
                 message: 'What is the template name?',
                 validate: validateRequired
-            },            
+            },
             {
                 type: 'confirm',
                 name: 'existingVNET',
@@ -131,7 +131,7 @@ module.exports = function (plop) {
                             "2016-Nano-Server",
                             "2016-Datacenter-with-Containers",
                             "2016-Datacenter"];
-                            
+
                         case 'UbuntuServer':
                             return ['14.04.5-LTS',
                             "14.04.5-LTS",
@@ -229,22 +229,22 @@ module.exports = function (plop) {
                 when: function (answers) {
                     return answers.isDiagnosticsEnabled;
                 }
-            },  
+            },
             {
                 type: 'confirm',
                 name: 'isProtectWithLocks',
                 default: false,
                 message: 'Do you want to lock the Key Vault?',
-            }, 
+            },
             {
                 // The property enableSoftDelete does not support false value \o/
-                // Therefore, we manage the presence of this property with 
+                // Therefore, we manage the presence of this property with
                 // a new flag
                 type: 'confirm',
                 name: 'enableSoftDelete',
                 default: false,
                 message: 'Do you want to enable soft delete?',
-            }, 
+            },
         ], // array of inquirer prompts
         actions: [
             {
@@ -282,7 +282,7 @@ module.exports = function (plop) {
                 default: false,
                 message: 'Do you want to enable the firewall?',
                 when: function (answers) {
-                    return answers.existingServer;
+                    return !answers.existingServer;
                 },
             },
             {
@@ -290,7 +290,7 @@ module.exports = function (plop) {
                 name: 'enableAudit',
                 default: true,
                 when: function (answers) {
-                    return answers.existingServer;
+                    return !answers.existingServer;
                 },
                 message: 'Do you want to enable Audit at the server level?'
             },
@@ -300,7 +300,7 @@ module.exports = function (plop) {
                 default: false,
                 message: 'Do you want to enable threat Detection at the server level?',
                 when: function (answers) {
-                    return answers.enableAudit && answers.existingServer;
+                    return answers.enableAudit && !answers.existingServer;
                 }
             },
             {
@@ -308,7 +308,7 @@ module.exports = function (plop) {
                 name: 'createDB',
                 default: true,
                 message: 'Do you want to create a database?'
-            },    
+            },
             {
                 type: 'confirm',
                 name: 'enableDBAudit',
@@ -342,9 +342,9 @@ module.exports = function (plop) {
                 name: 'useKeyVault',
                 default: false,
                 message: 'Do you want to use a Key Vault for password?',
-            }, 
+            },
             */
-            
+
         ], // array of inquirer prompts
         actions: [
             {
@@ -369,7 +369,7 @@ module.exports = function (plop) {
                 name: 'name',
                 message: 'What is the template name?',
                 validate: validateRequired
-            },            
+            },
             {
                 type: 'confirm',
                 name: 'createFirewallRules',
@@ -408,7 +408,7 @@ module.exports = function (plop) {
                 name: 'name',
                 message: 'What is the template name?',
                 validate: validateRequired
-            },            
+            },
             {
                 type: 'confirm',
                 name: 'existingASP',
@@ -439,7 +439,7 @@ module.exports = function (plop) {
                 default: false,
                 message: 'Do you want to create a Redis cache?',
             },
-            
+
         ], // array of inquirer prompts
         actions: [
             {

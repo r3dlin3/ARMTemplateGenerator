@@ -2,6 +2,14 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "sqlServerName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the server."
+      }
+    },
+    {{#unless existingServer}}
     "sqlServerAdminLogin": {
       "type": "string",
       "minLength": 1,
@@ -15,9 +23,68 @@
         "description": "The SQL server admin password"
       }
     },
-    "sqlServerName": {
-      "type": "string"
+    {{#if enableFirewall}}
+    "firewallRules": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of firewall rules (JSON object) with firewallRulesName, firewallRulesStartIpAddress and firewallRulesEndIpAddress"
+      }
     },
+    "allowAzureIps": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "metadata": {
+        "description": "Allow access from Azure services"
+      }
+    },
+    {{/if}}
+    {{#if enableAudit}}
+    "storageName": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 24,
+      "metadata": {
+        "description": "Storage account for audit logs"
+      }
+    },
+    "auditRetentionDays": {
+      "type": "string",
+      "defaultValue": "0",
+      "metadata": {
+        "description": "Specifies the number of days to keep in the audit logs."
+      }
+    },
+    {{#if existingStorage}}
+    "storageAccountResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "The resource group of the existing storage account."
+      }
+    },
+    {{else}}
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Premium_LRS",
+        "Standard_RAGRS",
+        "Standard_ZRS"
+      ],
+      "metadata": {
+        "description": "Type of storage account for VM diagnostics."
+      }
+    },
+    {{/if}}
+    {{/if}}
+    {{/unless}} {{!-- existingServer --}}
+    {{#if createDB}}
     "sqlDatabaseName": {
       "type": "string",
       "minLength": 1,
@@ -47,7 +114,7 @@
     },
     "sqlDatabaseMaxSizeBytes": {
       "type": "string",
-      "defaultValue": "268435456000",
+      "defaultValue": "2147483648",
       "metadata": {
         "description": "The SQL Databse max size"
       }
@@ -83,48 +150,7 @@
         "description": "Describes the performance level for Edition"
       }
     },
-    "firewallRules": {
-      "type": "array",
-      "metadata": {
-        "description": "Array of firewall rules (JSON object) with firewallRulesName, firewallRulesStartIpAddress and firewallRulesEndIpAddress"
-      }
-    },
-    "allowAzureIps": {
-      "type": "string",
-      "defaultValue": "Enabled",
-      "allowedValues": [
-        "Enabled",
-        "Disabled"
-      ],
-      "metadata": {
-        "description": "Allow access from Azure services"
-      }
-    },
-    "storageName": {
-      "type": "string",
-      "metadata": {
-        "description": "Storage account for VM diagnostics."
-      }
-    },
-    "storageAccountResourceGroup": {
-      "type": "string",
-      "metadata": {
-        "description": "The resource group of the existing storage account."
-      }
-    },
-    "storageAccountType": {
-      "type": "string",
-      "allowedValues": [
-        "Standard_LRS",
-        "Standard_GRS",
-        "Premium_LRS",
-        "Standard_RAGRS",
-        "Standard_ZRS"
-      ],
-      "metadata": {
-        "description": "Type of storage account for VM diagnostics."
-      }
-    },
+    {{/if}}
     "tags": {
       "type": "object",
       "defaultValue": {}
@@ -138,9 +164,10 @@
     }
   },
   "variables": {
-    "ApiVersion": "[variables('ApiVersion')]"
+    "SqlApiVersion":"2015-05-01-preview"
   },
   "resources": [
+    {{#if enableAudit}}
     {{#unless existingStorage}}
     {
       "type": "Microsoft.Storage/storageAccounts",
@@ -154,11 +181,31 @@
       "tags": "[parameters('tags')]"
     },
     {{/unless}}
+    {
+      "type": "Microsoft.Sql/servers/auditingPolicies",
+      "name": "[concat(parameters('sqlServerName'), '/Default')]",
+      "apiVersion": "2014-04-01",
+      "location": "[parameters('location')]",
+      "properties": {
+        "auditingState": "Enabled",
+        "storageAccountName" : "[parameters('storageName')]",
+        "storageAccountResourceGroupName": "[resourceGroup().name]",
+        "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2015-05-01-preview').key1]",
+        "storageAccountSubscriptionId": "[subscription().id]",
+        "retentionDays": "[parameters('auditRetentionDays')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"{{#unless existingStorage}},
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageName'))]"
+        {{/unless}}
+      ]
+    },
+    {{/if}}
     {{#unless existingServer}}
     {
       "name": "[parameters('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('SqlApiVersion')]",
       "location": "[parameters('location')]",
       "tags": "[parameters('tags')]",
       "properties": {
@@ -187,7 +234,7 @@
       }
     }{{#if enableFirewall}},
     {
-      "apiVersion": "[variables('ApiVersion')]",
+      "apiVersion": "[variables('SqlApiVersion')]",
       "name": "[concat(parameters('sqlServerName'), '/AllowAllWindowsAzureIps')]",
       "condition": "[equals(parameters('allowAzureIps'),'Enabled')]",
       "type": "Microsoft.Sql/servers/firewallRules",
@@ -200,7 +247,7 @@
       ]
     },
     {
-      "apiVersion": "[variables('ApiVersion')]",
+      "apiVersion": "[variables('SqlApiVersion')]",
       "name": "[concat(parameters('sqlServerName'), '/', parameters('firewallRules')[copyIndex()].firewallRulesName)]",
       "type": "Microsoft.Sql/servers/firewallRules",
       "properties": {
