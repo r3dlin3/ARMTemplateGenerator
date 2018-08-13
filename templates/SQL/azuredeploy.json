@@ -125,7 +125,7 @@
       "allowedValues": [
         "Free",
         "Basic",
-        "S0",
+        "",
         "S1",
         "S2",
         "S3",
@@ -150,6 +150,34 @@
         "description": "Describes the performance level for Edition"
       }
     },
+    {{#if backupLongTerm}}
+    "weeklyRetention": {
+       "type": "string",
+       "metadata": {
+            "description": "The weekly retention policy for an LTR backup in an ISO 8601 format."
+        }
+    },
+    "monthlyRetention": {
+      "type": "string",
+      "metadata": {
+           "description": "The montly retention policy for an LTR backup in an ISO 8601 format."
+       }
+    },
+    "yearlyRetention": {
+        "type": "string",
+        "metadata": {
+            "description": "The yearly retention policy for an LTR backup in an ISO 8601 format."
+        }
+    },
+    "weekOfYear": {
+      "type": "int",
+      "minValue" : 52,
+      "maxValue" : 520,
+      "metadata": {
+          "description": "The week of year to take the yearly backup in an ISO 8601 format."
+      }
+    },
+    {{/if}}
     {{/if}}
     "tags": {
       "type": "object",
@@ -215,6 +243,7 @@
       }
     },
     {{/unless}}
+    {{#if createDB}}
     {
       "name": "[concat(parameters('sqlServerName'),'/',parameters('sqlDatabaseName'))]",
       "type": "Microsoft.Sql/servers/databases",
@@ -232,7 +261,22 @@
         "maxSizeBytes": "[parameters('sqlDatabaseMaxSizeBytes')]",
         "requestedServiceObjectiveName": "[parameters('sqldatabaseRequestedServiceObjectiveName')]"
       }
-    }{{#if enableFirewall}},
+    }{{#if backupLongTerm}},
+    {
+      "name": "[concat(parameters('sqlServerName'),'/',parameters('sqlDatabaseName'),'/Default')]",
+      "type": "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases',parameters('sqlServerName'),parameters('sqlDatabaseName'))]"
+      ],
+      "apiVersion": "2017-03-01-preview",
+      "properties": {
+        "weeklyRetention": "[parameters('weeklyRetention')]",
+        "monthlyRetention": "[parameters('monthlyRetention')]",
+        "yearlyRetention": "[parameters('yearlyRetention')]",
+        "weekOfYear": "[parameters('weekOfYear')]"
+      }
+    }
+    {{/if}}{{/if}}{{#if enableFirewall}},
     {
       "apiVersion": "[variables('SqlApiVersion')]",
       "name": "[concat(parameters('sqlServerName'), '/AllowAllWindowsAzureIps')]",

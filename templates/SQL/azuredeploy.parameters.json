@@ -33,11 +33,11 @@
         },
         {{#if existingStorage}}
         "storageAccountResourceGroup": {
-          "value": ""
+            "value": ""
         },
         {{else}}
         "storageAccountType": {
-          "value": "Standard_LRS"
+            "value": "Standard_LRS"
         },
         {{/if}}
         {{/if}}
@@ -52,12 +52,29 @@
         "sqlDatabaseEdition": {
             "value": "Basic"
         },
+        "sqldatabaseRequestedServiceObjectiveName": {
+            "value": "Basic"
+        },
         "sqlDatabaseMaxSizeBytes": {
             "value": "2147483648"
         },
+        {{#if backupLongTerm}}
+        "weeklyRetention": {
+            "value": "PW6"
+        },
+        "monthlyRetention": { 
+            "value": "PM6"
+        },
+        "yearlyRetention": {
+            "value": "PY1"
+        },
+        "weekOfYear": {
+            "value": 1
+        },
+        {{/if}}
         {{/if}}
         "tags": {
-          "value": {}
-        },
+            "value": {}
+        }
     }
 }

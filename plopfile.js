@@ -336,6 +336,15 @@ module.exports = function (plop) {
                     return answers.enableAudit || answers.enableDBAudit;
                 }
             },
+            {
+                type: 'confirm',
+                name: 'backupLongTerm',
+                default: false,
+                message: 'Do you want to configure Azure SQL database with a long-term backup retention policy (LTR)?',
+                when: function (answers) {
+                    return answers.createDB;
+                }
+            },
             /*
             {
                 type: 'confirm',
