@@ -31,7 +31,7 @@ module.exports = function (plop) {
     plop.setActionType('printHelpDeployment', function (answers, config, plop) {
         // do something
         console.log(chalk.yellow('To deploy your template, use the following PowerShell cmdlet:'));
-        console.log(chalk.yellow('New-AzureRmResourceGroupDeployment -ResourceGroupName <ResourceGroupName> -verbose -TemplateFile .\\generated\\'+answers.name+'.json -TemplateParameterFile .\\generated\\'+answers.name+'.parameters.json'));
+        console.log(chalk.yellow('New-AzureRmResourceGroupDeployment -ResourceGroupName <ResourceGroupName> -verbose -TemplateFile .\\generated\\' + answers.name + '.json -TemplateParameterFile .\\generated\\' + answers.name + '.parameters.json'));
         return '';
     });
 
@@ -55,9 +55,9 @@ module.exports = function (plop) {
                 type: 'confirm',
                 name: 'existingSubnet',
                 default: true,
-                when: function( answers ) {
+                when: function (answers) {
                     return answers.existingVNET;
-                  },
+                },
                 message: 'Do you want to use an existing subnet?',
                 validate: validateRequired
             },
@@ -89,7 +89,7 @@ module.exports = function (plop) {
                 name: 'remoteAccess',
                 default: true,
                 message: 'Do you want to open remote access port?',
-                when: function( answers ) {
+                when: function (answers) {
                     return answers.hasPublicIP;
                 },
             },
@@ -105,10 +105,10 @@ module.exports = function (plop) {
                 name: 'osOffer',
                 default: 0,
                 message: 'What is the OS offer?',
-                choices: function(answers) {
+                choices: function (answers) {
                     switch (answers.osPublisher) {
                         case 'MicrosoftWindowsServer':
-                            return  ['WindowsServer']
+                            return ['WindowsServer']
                         case 'Canonical':
                             return ['UbuntuServer']
                         case 'RedHat':
@@ -123,20 +123,20 @@ module.exports = function (plop) {
                 name: 'osSku',
                 default: 0,
                 message: 'What is the OS SKU?',
-                choices: function(answers) {
+                choices: function (answers) {
                     switch (answers.osOffer) {
                         case 'WindowsServer':
                             return ["2012-Datacenter",
-                            "2012-R2-Datacenter",
-                            "2016-Nano-Server",
-                            "2016-Datacenter-with-Containers",
-                            "2016-Datacenter"];
+                                "2012-R2-Datacenter",
+                                "2016-Nano-Server",
+                                "2016-Datacenter-with-Containers",
+                                "2016-Datacenter"];
 
                         case 'UbuntuServer':
                             return ['14.04.5-LTS',
-                            "14.04.5-LTS",
-                            "15.10",
-                            "16.04.0-LTS"]
+                                "14.04.5-LTS",
+                                "15.10",
+                                "16.04.0-LTS"]
                         case 'RHEL':
                             return ['7.2']
                         default:
@@ -353,6 +353,15 @@ module.exports = function (plop) {
                 message: 'Do you want to use a Key Vault for password?',
             },
             */
+            {
+                type: 'confirm',
+                name: 'enableGeoReplication',
+                default: false,
+                message: 'Do you want to enable geo-replication',
+                when: function (answers) {
+                    return answers.createDB;
+                }
+            }
 
         ], // array of inquirer prompts
         actions: [

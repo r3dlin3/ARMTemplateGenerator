@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "sqlServerName": {
-            "value": "{{name}}"
+            "value": "{{lowerCase name}}"
         },
         {{#unless existingServer}}
         "sqlServerAdminLogin": {
@@ -72,7 +72,20 @@
             "value": 1
         },
         {{/if}}
-        {{/if}}
+        {{#if enableGeoReplication}}
+        "secondarySqlServerName": {
+            "value": ""
+        },
+        "secondarySqlServerAdminLogin": {
+            "value": ""
+        },
+        "secondarySqlServerAdminPassword": {
+            "value": ""
+        },
+        "secondarySqlLocation": {
+            "value": ""
+        },{{/if}}
+        {{/if}} {{!-- createDB --}}
         "tags": {
             "value": {}
         }
