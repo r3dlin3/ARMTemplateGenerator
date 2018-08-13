@@ -1,6 +1,13 @@
 var validateRequired = require('../../validator').validateRequired;
+const chalk = require('chalk');
 
 module.exports = function (plop) {
+    plop.setActionType('printHelpDeployment', function (answers, config, plop) {
+        // do something
+        console.log(chalk.yellow('To deploy your template, use the following PowerShell cmdlet:'));
+        console.log(chalk.yellow('New-AzureRmResourceGroupDeployment -ResourceGroupName <ResourceGroupName> -verbose -TemplateFile .\\generated\\' + answers.name + '.json -TemplateParameterFile .\\generated\\' + answers.name + '.parameters.json'));
+        return '';
+    });
     plop.setGenerator('Key Vault', {
         description: 'This module generates ARM template file for a Azure Key Vault',
         prompts: [
@@ -50,13 +57,13 @@ module.exports = function (plop) {
         actions: [
             {
                 type: "add",
-                path: "generated/{{name}}.parameters.json",
-                templateFile: "templates/KeyVault/azuredeploy.parameters.json"
+                path: "generated/{{name}}.json",
+                templateFile: "./azuredeploy.json"
             },
             {
                 type: "add",
-                path: "generated/{{name}}.json",
-                templateFile: "templates/KeyVault/azuredeploy.json"
+                path: "generated/{{name}}.parameters.json",
+                templateFile: "./azuredeploy.parameters.json"
             },
             {
                 type: "printHelpDeployment"
