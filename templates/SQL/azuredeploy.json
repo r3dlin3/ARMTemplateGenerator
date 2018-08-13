@@ -27,7 +27,7 @@
     "firewallRules": {
       "type": "array",
       "metadata": {
-        "description": "Array of firewall rules (JSON object) with firewallRulesName, firewallRulesStartIpAddress and firewallRulesEndIpAddress"
+        "description": "Array of firewall rules (JSON object) with Name, StartIpAddress and EndIpAddress"
       }
     },
     "allowAzureIps": {
@@ -357,11 +357,11 @@
     },
     {
       "apiVersion": "[variables('SqlApiVersion')]",
-      "name": "[concat(parameters('sqlServerName'), '/', parameters('firewallRules')[copyIndex()].firewallRulesName)]",
+      "name": "[concat(parameters('sqlServerName'), '/', parameters('firewallRules')[copyIndex()].Name)]",
       "type": "Microsoft.Sql/servers/firewallRules",
       "properties": {
-        "startIpAddress": "[parameters('firewallRules')[copyIndex()].firewallRulesStartIpAddress]",
-        "endIpAddress": "[parameters('firewallRules')[copyIndex()].firewallRulesEndIpAddress]"
+        "startIpAddress": "[parameters('firewallRules')[copyIndex()].StartIpAddress]",
+        "endIpAddress": "[parameters('firewallRules')[copyIndex()].EndIpAddress]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
@@ -370,8 +370,38 @@
         "name": "fwrulecopy",
         "count": "[length(parameters('firewallRules'))]"
       }
+    }{{#if enableGeoReplication}},
+    {
+      "apiVersion": "[variables('SqlApiVersion')]",
+      "name": "[concat(parameters('secondarySqlServerName'), '/AllowAllWindowsAzureIps')]",
+      "condition": "[equals(parameters('allowAzureIps'),'Enabled')]",
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "properties": {
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+      ]
+    },
+    {
+      "apiVersion": "[variables('SqlApiVersion')]",
+      "name": "[concat(parameters('secondarySqlServerName'), '/', parameters('firewallRules')[copyIndex()].Name)]",
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "properties": {
+        "startIpAddress": "[parameters('firewallRules')[copyIndex()].StartIpAddress]",
+        "endIpAddress": "[parameters('firewallRules')[copyIndex()].EndIpAddress]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('secondarySqlServerName'))]"
+      ],
+      "copy": {
+        "name": "fwrulecopy",
+        "count": "[length(parameters('firewallRules'))]"
+      }
     }
     {{/if}}
+    {{/if}}{{!-- enableFirewall --}}
   ],
   "outputs": {}
 }

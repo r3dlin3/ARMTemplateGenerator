@@ -15,9 +15,9 @@
         {{#if enableFirewall}}
         "firewallRules": {
             "value": [{
-              "firewallRulesName":"",
-              "firewallRulesStartIpAddress":"",
-              "firewallRulesEndIpAddress":""
+              "Name":"",
+              "StartIpAddress":"",
+              "EndIpAddress":""
             }]
         },
         "allowAzureIps": {
