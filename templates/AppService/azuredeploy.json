@@ -295,7 +295,10 @@
                         "httpLoggingEnabled": true,
                         "logsDirectorySizeLimit": 40,
                         "detailedErrorLoggingEnabled": true,
-                        "scmType": "LocalGit"
+                        "remoteDebuggingEnabled": false,
+                        "ftpsState": "Disabled",
+                        "defaultDocuments": [],
+                        "httpsOnly": true
                         {{#if createAppInsights}}
                         "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName'))).InstrumentationKey]"
                         {{/if}}
@@ -313,8 +316,29 @@
                     "properties": {
                         "version": "2.6.5"
                     }
+                },
+                {
+                    "apiVersion": "2014-11-01",
+                    "name": "appsettings",
+                    "type": "config",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"{{#if createAppInsights}},
+                        "[resourceId('Microsoft.Web/sites/siteextensions', parameters('siteName'),'Microsoft.ApplicationInsights.AzureWebSites')]",
+                        {{/if}}{{#if createCache}},
+                        "[concat('Microsoft.Cache/Redis/', parameters('cacheName'))]"
+                        {{/if}}
+                    ],
+                    "properties": {
+                        {{#if createAppInsights}}
+                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName'))).InstrumentationKey]",
+                        "AppInsights:InstrumentationKey": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName'))).InstrumentationKey]",
+                        {{/if}}
+                        {{#if createCache}}
+                        "CacheConnection": "[concat(variables('cacheName'),'.redis.cache.windows.net,abortConnect=false,ssl=true,password=', listKeys(resourceId('Microsoft.Cache/Redis', parameters('cacheName')), '2015-08-01').primaryKey)]"
+                        {{/if}}
+
+                    }
                 }
-                {{/if}}
             ]
         }
     ]
