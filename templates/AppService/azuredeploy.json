@@ -296,8 +296,25 @@
                         "logsDirectorySizeLimit": 40,
                         "detailedErrorLoggingEnabled": true,
                         "scmType": "LocalGit"
+                        {{#if createAppInsights}}
+                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName'))).InstrumentationKey]"
+                        {{/if}}
                     }
                 }
+                {{#if createAppInsights}}
+                ,{
+                    "apiVersion": "2015-08-01",
+                    "name": "[concat(parameters('siteName'),'/Microsoft.ApplicationInsights.AzureWebSites')]",
+                    "type": "Microsoft.Web/sites/siteextensions",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+                    ],
+                    "properties": {
+                        "version": "2.6.5"
+                    }
+                }
+                {{/if}}
             ]
         }
     ]
