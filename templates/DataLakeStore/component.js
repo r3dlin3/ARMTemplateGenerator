@@ -34,12 +34,12 @@ plop.setGenerator('DataLakeStore', {
         {
             type: "add",
             path: "generated/{{name}}.parameters.json",
-            templateFile: "templates/DataLakeStore/azuredeploy.parameters.json"
+            templateFile: "./azuredeploy.parameters.json"
         },
         {
             type: "add",
             path: "generated/{{name}}.json",
-            templateFile: "templates/DataLakeStore/azuredeploy.json"
+            templateFile: "./azuredeploy.json"
         },
         {
             type: "printHelpDeployment"
