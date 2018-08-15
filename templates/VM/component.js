@@ -154,15 +154,16 @@ module.exports = function (plop) {
                 validate: validateUnsignedInteger
             },
         ], // array of inquirer prompts
-        actions: [{
-                type: "add",
-                path: "generated/{{name}}.parameters.json",
-                templateFile: "templates/VM/azuredeploy.parameters.json"
-            },
+        actions: [
             {
                 type: "add",
                 path: "generated/{{name}}.json",
-                templateFile: "templates/VM/azuredeploy.json"
+                templateFile: "./azuredeploy.json"
+            },
+            {
+                type: "add",
+                path: "generated/{{name}}.parameters.json",
+                templateFile: "./azuredeploy.parameters.json"
             },
             {
                 type: "printHelpDeployment"

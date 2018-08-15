@@ -87,15 +87,16 @@ module.exports = function (plop) {
             */
 
         ], // array of inquirer prompts
-        actions: [{
-                type: "add",
-                path: "generated/{{name}}.parameters.json",
-                templateFile: "templates/SQL/azuredeploy.parameters.json"
-            },
+        actions: [
             {
                 type: "add",
                 path: "generated/{{name}}.json",
-                templateFile: "templates/SQL/azuredeploy.json"
+                templateFile: "./SQL/azuredeploy.json"
+            },
+            {
+                type: "add",
+                path: "generated/{{name}}.parameters.json",
+                templateFile: "./azuredeploy.parameters.json"
             },
             {
                 type: "printHelpDeployment"
