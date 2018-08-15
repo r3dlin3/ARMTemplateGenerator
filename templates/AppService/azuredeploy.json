@@ -322,8 +322,7 @@
                     "type": "config",
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"{{#if createAppInsights}},
-                        "[resourceId('Microsoft.Web/sites/siteextensions', parameters('siteName'),'Microsoft.ApplicationInsights.AzureWebSites')]",
-                        {{/if}}{{#if createCache}},
+                        "[resourceId('Microsoft.Web/sites/siteextensions', parameters('siteName'),'Microsoft.ApplicationInsights.AzureWebSites')]"{{/if}}{{#if createCache}},
                         "[concat('Microsoft.Cache/Redis/', parameters('cacheName'))]"
                         {{/if}}
                     ],
