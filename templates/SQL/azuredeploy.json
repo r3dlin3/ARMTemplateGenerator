@@ -1,31 +1,268 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "adminLogin": {
-        "type": "string"
-      },
-      "adminPassword": {
-        "type": "securestring"
-      },
-      "sqlServerName": {
-        "type": "string"
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sqlServerName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the server."
       }
     },
-    "resources": [
-      {
-        "name": "[parameters('sqlServerName')]",
-        "type": "Microsoft.Sql/servers",
-        "apiVersion": "2015-05-01-preview",
-        "location": "[resourceGroup().location]",
-        "tags": {},
-        "properties": {
-          "administratorLogin": "[parameters('adminLogin')]",
-          "administratorLoginPassword": "[parameters('adminPassword')]",
-          "version": "12.0"
-        }
+    {{#unless existingServer}}
+    "sqlServerAdminLogin": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The SQL server admin username."
       }
-    ],
-    "outputs": {
+    },
+    "sqlServerAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The SQL server admin password"
+      }
+    },
+    {{#if enableFirewall}}
+    "firewallRules": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of firewall rules (JSON object) with firewallRulesName, firewallRulesStartIpAddress and firewallRulesEndIpAddress"
+      }
+    },
+    "allowAzureIps": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "metadata": {
+        "description": "Allow access from Azure services"
+      }
+    },
+    {{/if}}
+    {{#if enableAudit}}
+    "storageName": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 24,
+      "metadata": {
+        "description": "Storage account for audit logs"
+      }
+    },
+    "auditRetentionDays": {
+      "type": "string",
+      "defaultValue": "0",
+      "metadata": {
+        "description": "Specifies the number of days to keep in the audit logs."
+      }
+    },
+    {{#if existingStorage}}
+    "storageAccountResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "The resource group of the existing storage account."
+      }
+    },
+    {{else}}
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Premium_LRS",
+        "Standard_RAGRS",
+        "Standard_ZRS"
+      ],
+      "metadata": {
+        "description": "Type of storage account for VM diagnostics."
+      }
+    },
+    {{/if}}
+    {{/if}}
+    {{/unless}} {{!-- existingServer --}}
+    {{#if createDB}}
+    "sqlDatabaseName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The SQL database name"
+      }
+    },
+    "sqlDatabaseCollation": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
+      "metadata": {
+        "description": "The SQL database collation"
+      }
+    },
+    "sqlDatabaseEdition": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "metadata": {
+        "description": "The SQL database edition"
+      }
+    },
+    "sqlDatabaseMaxSizeBytes": {
+      "type": "string",
+      "defaultValue": "2147483648",
+      "metadata": {
+        "description": "The SQL Databse max size"
+      }
+    },
+    "sqldatabaseRequestedServiceObjectiveName": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Free",
+        "Basic",
+        "S0",
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S6",
+        "S7",
+        "S9",
+        "S12",
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P6",
+        "P11",
+        "P15",
+        "PRS1",
+        "PRS2",
+        "PRS4",
+        "PRS6"
+      ],
+      "metadata": {
+        "description": "Describes the performance level for Edition"
+      }
+    },
+    {{/if}}
+    "tags": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "The region to deploy the resources into"
+      }
     }
-  }
+  },
+  "variables": {
+    "SqlApiVersion":"2015-05-01-preview"
+  },
+  "resources": [
+    {{#if enableAudit}}
+    {{#unless existingStorage}}
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      },
+      "kind": "StorageV2",
+      "name": "[parameters('storageName')]",
+      "apiVersion": "2018-02-01",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]"
+    },
+    {{/unless}}
+    {
+      "type": "Microsoft.Sql/servers/auditingPolicies",
+      "name": "[concat(parameters('sqlServerName'), '/Default')]",
+      "apiVersion": "2014-04-01",
+      "location": "[parameters('location')]",
+      "properties": {
+        "auditingState": "Enabled",
+        "storageAccountName" : "[parameters('storageName')]",
+        "storageAccountResourceGroupName": "[resourceGroup().name]",
+        "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2015-05-01-preview').key1]",
+        "storageAccountSubscriptionId": "[subscription().id]",
+        "retentionDays": "[parameters('auditRetentionDays')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"{{#unless existingStorage}},
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageName'))]"
+        {{/unless}}
+      ]
+    },
+    {{/if}}
+    {{#unless existingServer}}
+    {
+      "name": "[parameters('sqlServerName')]",
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "[variables('SqlApiVersion')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "administratorLogin": "[parameters('sqlServerAdminLogin')]",
+        "administratorLoginPassword": "[parameters('sqlServerAdminPassword')]",
+        "version": "12.0"
+      }
+    },
+    {{/unless}}
+    {
+      "name": "[concat(parameters('sqlServerName'),'/',parameters('sqlDatabaseName'))]",
+      "type": "Microsoft.Sql/servers/databases",
+      "location": "[parameters('location')]",
+      "apiVersion": "2014-04-01",
+      {{#unless existingServer}}
+      "dependsOn": [
+        "[parameters('sqlServerName')]"
+      ],
+      {{/unless}}
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "collation": "[parameters('sqlDatabaseCollation')]",
+        "edition": "[parameters('sqlDatabaseEdition')]",
+        "maxSizeBytes": "[parameters('sqlDatabaseMaxSizeBytes')]",
+        "requestedServiceObjectiveName": "[parameters('sqldatabaseRequestedServiceObjectiveName')]"
+      }
+    }{{#if enableFirewall}},
+    {
+      "apiVersion": "[variables('SqlApiVersion')]",
+      "name": "[concat(parameters('sqlServerName'), '/AllowAllWindowsAzureIps')]",
+      "condition": "[equals(parameters('allowAzureIps'),'Enabled')]",
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "properties": {
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+      ]
+    },
+    {
+      "apiVersion": "[variables('SqlApiVersion')]",
+      "name": "[concat(parameters('sqlServerName'), '/', parameters('firewallRules')[copyIndex()].firewallRulesName)]",
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "properties": {
+        "startIpAddress": "[parameters('firewallRules')[copyIndex()].firewallRulesStartIpAddress]",
+        "endIpAddress": "[parameters('firewallRules')[copyIndex()].firewallRulesEndIpAddress]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+      ],
+      "copy": {
+        "name": "fwrulecopy",
+        "count": "[length(parameters('firewallRules'))]"
+      }
+    }
+    {{/if}}
+  ],
+  "outputs": {}
+}

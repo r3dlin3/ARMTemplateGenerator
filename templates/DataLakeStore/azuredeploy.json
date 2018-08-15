@@ -89,7 +89,7 @@
             "properties": {
                 {{#if createFirewallRules}}
                 "firewallState": "Enabled",
-                "firewallAllowAzureIps": "Disabled",
+                "firewallAllowAzureIps": "[parameters('allowAzureIps')",
                 {{/if}}
                 "newTier": "[parameters('dataLakeStoreNewTier')]",
                 "encryptionState": "Enabled"{{#if useKeyVault}},
