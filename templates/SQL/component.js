@@ -91,7 +91,7 @@ module.exports = function (plop) {
             {
                 type: "add",
                 path: "generated/{{name}}.json",
-                templateFile: "./SQL/azuredeploy.json"
+                templateFile: "./azuredeploy.json"
             },
             {
                 type: "add",
