@@ -22,7 +22,7 @@
     {{#if createAppInsights}}
     "AppInsightsName": {
       "value": ""
-    }
+    },
     {{/if}}
     {{#if createCDN}}
     "CDNProfileName": {
