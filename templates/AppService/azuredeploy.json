@@ -98,7 +98,7 @@
             "allowedValues": [
               "Basic",
               "Standard",
-              "Premium",
+              "Premium"
             ],
             "defaultValue": "Basic",
             "metadata": {
@@ -123,7 +123,7 @@
               "description": "The size of the Redis cache to deploy. Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4)"
             }
           },
-          {{/if}}
+        {{/if}}{{!-- createCache --}}
         "tags": {
             "type": "object",
             "defaultValue": {}
@@ -265,7 +265,7 @@
             }
           },
           {{/if}}
-        {
+          {
             "apiVersion": "2015-08-01",
             "name": "[parameters('siteName')]",
             "type": "Microsoft.Web/sites",
@@ -299,11 +299,9 @@
                         "ftpsState": "Disabled",
                         "defaultDocuments": [],
                         "httpsOnly": true
-                        {{#if createAppInsights}}
-                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName'))).InstrumentationKey]"
-                        {{/if}}
                     }
-                }{{#if createAppInsights}},
+                },
+                {{#if createAppInsights}}
                 {
                     "apiVersion": "2015-08-01",
                     "name": "[concat(parameters('siteName'),'/Microsoft.ApplicationInsights.AzureWebSites')]",
@@ -316,6 +314,7 @@
                         "version": "2.6.5"
                     }
                 },
+                {{/if}}
                 {
                     "apiVersion": "2014-11-01",
                     "name": "appsettings",
@@ -338,6 +337,6 @@
                     }
                 }
             ]
-        }
+        }       
     ]
 }
