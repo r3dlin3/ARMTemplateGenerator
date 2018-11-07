@@ -8,12 +8,14 @@
     "appServicePlanName": {
       "value": ""
     },
+    {{#unless existingASP}}
     "skuName": {
       "value": "F1"
     },
     "capacity": {
       "value": 1
     },
+    {{/unless}}
     {{#if createSlot}}
     "environments": {
         "value": ["Dev","QA","UAT","Preview"]

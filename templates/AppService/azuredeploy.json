@@ -14,6 +14,15 @@
                 "description": "Name of hosting plan"
             }
         },
+        {{#if existingASP}}
+        "appServicePlanResourceGroupName": {
+            "type": "string",
+            "defaultValue" : "[[resourceGroup().name]]",
+            "metadata": {
+                "description": "Name of hosting plan"
+            }
+        },
+        {{else}}
         "skuName": {
             "type": "string",
             "allowedValues": [
@@ -41,6 +50,7 @@
                 "description": "Current number of instances assigned to the resource."
             }
         },
+        {{/if}}
         {{#if createSlot}}
         "environments": {
             "defaultValue": [
@@ -170,7 +180,7 @@
             "comments": "This specifies the web app slots.",
             
             "properties": {
-              "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+              "serverFarmId": "[resourceId({{#if existingASP}}parameters('appServicePlanResourceGroupName'),{{/if}}'Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
             },
             "dependsOn": [
               "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
@@ -277,7 +287,8 @@
             ],
             "properties": {
                 "name": "[parameters('siteName')]",
-                "serverFarmId": "[parameters('appServicePlanName')]"
+                "serverFarmId": "[parameters('appServicePlanName')]",
+                "httpsOnly": true
             },
             "resources": [
                 {
@@ -288,17 +299,17 @@
                         "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
                     ],
                     "properties": {
+                        "use32BitWorkerProcess": false,
                         "phpVersion": "off",
-                        "netFrameworkVersion": "v4.5",
-                        "webSocketsEnabled": true,
+                        "netFrameworkVersion": "v4.7",
+                        "webSocketsEnabled": false,
                         "requestTracingEnabled": true,
+                        "detailedErrorLoggingEnabled": true,
                         "httpLoggingEnabled": true,
                         "logsDirectorySizeLimit": 40,
-                        "detailedErrorLoggingEnabled": true,
                         "remoteDebuggingEnabled": false,
                         "ftpsState": "Disabled",
-                        "defaultDocuments": [],
-                        "httpsOnly": true
+                        "defaultDocuments": []
                     }
                 },
                 {{#if createAppInsights}}
