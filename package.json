@@ -3,5 +3,8 @@
     "chalk": "^2.4.1",
     "glob": "^7.1.2",
     "handlebars-helper-repeat": "https://github.com/r3dlin3/handlebars-helper-repeat#feature/block_params"
+  },
+  "devDependencies": {
+    "plop": "^2.3.0"
   }
 }
