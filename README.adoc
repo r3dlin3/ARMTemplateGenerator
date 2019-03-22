@@ -53,16 +53,25 @@ toc::[]
 
     git clone https://github.com/r3dlin3/ARMTemplateGenerator
 
-2. Install plop globally
+2. Install dependencies
 
-    $ yarn global add plop  
-or
-    $ npm install -g plop
-
-3. Install dependencies
     $ yarn install
 or
     $ npm install
+
+3. Install plop globally
+
+    $ yarn global add plop
+or
+    $ npm install -g plop
+
+4. Check plop's version
+
+----
+> plop -v
+CLI version 2.1.0
+Local version 2.3.0
+----
 
 === Generate a VM ARM template
 ----
