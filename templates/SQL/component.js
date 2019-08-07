@@ -20,8 +20,17 @@ module.exports = function (plop) {
             {
                 type: 'confirm',
                 name: 'enableFirewall',
+                default: true,
+                message: 'Do you want to enable the firewall (highly recommended)?',
+                when: function (answers) {
+                    return !answers.existingServer;
+                },
+            },
+            {
+                type: 'confirm',
+                name: 'enableServiceEndpoint',
                 default: false,
-                message: 'Do you want to enable the firewall?',
+                message: 'Do you want to enable service endpoint?',
                 when: function (answers) {
                     return !answers.existingServer;
                 },

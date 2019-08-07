@@ -15,13 +15,24 @@
         {{#if enableFirewall}}
         "firewallRules": {
             "value": [{
-              "firewallRulesName":"",
-              "firewallRulesStartIpAddress":"",
-              "firewallRulesEndIpAddress":""
-            }]
+                "firewallRulesName":"",
+                "firewallRulesStartIpAddress":"",
+                "firewallRulesEndIpAddress":""
+                }]
         },
         "allowAzureIps": {
             "value": "Enabled"
+        },
+        {{/if}}
+        {{#if enableServiceEndpoint}}
+        "vnetName": {
+            "value": ""
+        },
+        "subnetName": {
+            "value": ""
+        },
+        "vnetResourceGroup": {
+            "value": ""
         },
         {{/if}}
         {{#if enableAudit}}

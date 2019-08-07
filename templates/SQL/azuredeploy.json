@@ -42,6 +42,27 @@
       }
     },
     {{/if}}
+    {{#if enableServiceEndpoint}}
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+            "description": "Name of the new or existing VNET"
+        }
+    },
+    "subnetName": {
+        "type": "string",
+        "metadata": {
+            "description": "Name of the new or existing subnet"
+        }
+    },
+    "vnetResourceGroup": {
+        "type": "string",
+        "defaultValue" : "[resourceGroup().name]",
+        "metadata": {
+            "description": "Resource group of the new or existing VNET"
+        }
+    },
+    {{/if}}
     {{#if enableAudit}}
     "storageName": {
       "type": "string",
@@ -164,7 +185,9 @@
     }
   },
   "variables": {
-    "SqlApiVersion":"2015-05-01-preview"
+    "SqlApiVersion":"2015-05-01-preview"{{#if enableServiceEndpoint}},
+    "vnetID": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
+    {{/if}}
   },
   "resources": [
     {{#if enableAudit}}
@@ -215,6 +238,7 @@
       }
     },
     {{/unless}}
+    {{#if createDB}}
     {
       "name": "[concat(parameters('sqlServerName'),'/',parameters('sqlDatabaseName'))]",
       "type": "Microsoft.Sql/servers/databases",
@@ -232,7 +256,7 @@
         "maxSizeBytes": "[parameters('sqlDatabaseMaxSizeBytes')]",
         "requestedServiceObjectiveName": "[parameters('sqldatabaseRequestedServiceObjectiveName')]"
       }
-    }{{#if enableFirewall}},
+    },{{/if}}{{#if enableFirewall}}
     {
       "apiVersion": "[variables('SqlApiVersion')]",
       "name": "[concat(parameters('sqlServerName'), '/AllowAllWindowsAzureIps')]",
@@ -262,6 +286,32 @@
         "count": "[length(parameters('firewallRules'))]"
       }
     }
+    {{else}}
+    {
+      "apiVersion": "[variables('SqlApiVersion')]",
+      "name": "[concat(parameters('sqlServerName'), '/All')]",
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "properties": {
+        "firewallRulesName": "All",
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "255.255.255.255"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+      ]
+    }{{/if}}{{#if enableServiceEndpoint}},
+    {
+      "type": "Microsoft.Sql/servers/virtualNetworkRules",
+      "apiVersion": "[variables('SqlApiVersion')]",
+      "name": "[concat(parameters('sqlServerName'), '/', parameters('subnetName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+      ],
+      "properties": {
+        "virtualNetworkSubnetId": "[concat(variables('vnetID'), '/subnets/', parameters('subnetName'))]",
+        "ignoreMissingVnetServiceEndpoint": true
+      }
+    },
     {{/if}}
   ],
   "outputs": {}
