@@ -186,7 +186,7 @@
   },
   "variables": {
     "SqlApiVersion":"2015-05-01-preview"{{#if enableServiceEndpoint}},
-    "vnetID": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
+    "vnetID": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]"
     {{/if}}
   },
   "resources": [
