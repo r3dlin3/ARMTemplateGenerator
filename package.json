@@ -2,7 +2,8 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "glob": "^7.1.4",
-    "handlebars-helper-repeat": "git+https://github.com/r3dlin3/handlebars-helper-repeat.git#feature/block_params"
+    "handlebars-helper-repeat": "git+https://github.com/r3dlin3/handlebars-helper-repeat.git#feature/block_params",
+    "inquirer-recursive": "https://github.com/r3dlin3/inquirer-recursive#master"
   },
   "devDependencies": {
     "plop": "^2.3.0"
