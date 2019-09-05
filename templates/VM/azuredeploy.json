@@ -221,6 +221,42 @@
             }
         },
         {{/if}}
+        {{#each extensions}}
+        {{#is extensionType "Generic"}}
+        {{/is}}
+        {{#is extensionType "CustomScript"}}
+        "scriptURL": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "URL of the script for the custom script extension"
+            }
+        },
+        {{/is}}
+        {{#is extensionType "DSC"}}
+        {{#if onboardAzureAutomation}}
+        "automationAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Automation Account used by the DSC Extension"
+            }
+        },
+        "automationResourceGroupName": {
+            "type": "string",
+            "default" : "[resourceGroup().name]",
+            "metadata": {
+                "description": "Automation Account used by the DSC Extension"
+            }
+        },
+        "nodeConfigurationName": {
+            "type": "string",
+            "metadata": {
+                "description": "Node configuration Name in the Automation Account"
+            }
+        },
+        {{else}}
+        {{/is}}
+        {{/each}}
         "computerName": {
             "type": "string",
             "defaultValue": "[parameters('vmName')]",
@@ -484,24 +520,133 @@
                     ]
                 }
             }
-        }{{#repeat count=nbExtension}},
+        }{{#each extensions}},
+        {{#is extensionType "Generic"}}
         {
-          "type": "Microsoft.Compute/virtualMachines/extensions",
-          "name": "[concat(parameters('vmName'),'/', 'extensionName{{@index}}')]",
-          "apiVersion": "2015-06-15",
-          "location": "[parameters('location')]",
-          "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
-          ],
-          "properties": {
-            "publisher": "",
-            "type": "",
-            "typeHandlerVersion": "",
-            "autoUpgradeMinorVersion": true,
-            "settings": null,
-            "protectedSettings": null
-          }
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('vmName'),'/', '{{extensionType}}{{@index}}')]",
+            "apiVersion": "2015-06-15",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+            ],
+            "properties": {
+              "publisher": "",
+              "type": "",
+              "typeHandlerVersion": "",
+              "autoUpgradeMinorVersion": true,
+              "settings": null,
+              "protectedSettings": null
+            }
         }
-        {{/repeat}}
+        {{/is}}
+        {{#is extensionType "CustomScript"}}
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('vmName'),'/', '{{extensionType}}{{@index}}')]",
+            "apiVersion": "2018-06-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.9",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [
+                        "script location"
+                    ],
+                    "timestamp":123456789
+                },
+                "protectedSettings": {
+                    "commandToExecute": "myExecutionCommand",
+                    "storageAccountName": "myStorageAccountName",
+                    "storageAccountKey": "myStorageAccountKey"
+                }
+            }
+        }
+        {{/is}}
+        {{#is extensionType "DSC"}}
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('vmName'),'/', '{{extensionType}}{{@index}}')]",
+            "apiVersion": "2018-06-30",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.77",
+                "autoUpgradeMinorVersion": true,
+                {{#if onboardAzureAutomation}}
+                "protectedSettings": {
+                    "Items": {
+                        "registrationKeyPrivate": "[listKeys(resourceId(parameters('automationResourceGroupName'),'Microsoft.Automation/automationAccounts/', parameters('automationAccountName')), '2018-06-30').Keys[0].value]"
+                    }
+                },
+                "settings": {
+                    "Properties": [
+                        {
+                            "Name": "RegistrationKey",
+                            "Value": {
+                                "UserName": "PLACEHOLDER_DONOTUSE",
+                                "Password": "PrivateSettingsRef:registrationKeyPrivate"
+                            },
+                            "TypeName": "System.Management.Automation.PSCredential"
+                        },
+                        {
+                            "Name": "RegistrationUrl",
+                            "Value": "[reference(parameters('automationResourceGroupName'),concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))).registrationUrl]",
+                            "TypeName": "System.String"
+                        },
+                        {
+                            "Name": "NodeConfigurationName",
+                            "Value": "[parameters('nodeConfigurationName')]",
+                            "TypeName": "System.String"
+                        }
+                    ]
+                }
+                {{else}}
+                "settings": {
+                    "wmfVersion": "latest",
+                    "configuration": {
+                        "url": "http://validURLToConfigLocation",
+                        "script": "ConfigurationScript.ps1",
+                        "function": "ConfigurationFunction"
+                    },
+                    "configurationArguments": {
+                        "argument1": "Value1",
+                        "argument2": "Value2"
+                    },
+                    "configurationData": {
+                        "url": "https://foo.psd1"
+                    },
+                    "privacy": {
+                        "dataCollection": "Disable"
+                    }
+                },
+                "protectedSettings": {
+                    "configurationArguments": {
+                        "parameterOfTypePSCredential1": {
+                            "userName": "UsernameValue1",
+                            "password": "PasswordValue1"
+                        },
+                        "parameterOfTypePSCredential2": {
+                            "userName": "UsernameValue2",
+                            "password": "PasswordValue2"
+                        }
+                    },
+                    "configurationUrlSasToken": "?g!bber1sht0k3n",
+                    "configurationDataUrlSasToken": "?dataAcC355T0k3N"
+                }
+                {{/if}}
+            }
+        }
+        {{/is}}
+        {{/each}}
     ]
 }
