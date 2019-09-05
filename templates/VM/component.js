@@ -1,11 +1,30 @@
 var validateRequired = require('../../validator').validateRequired;
 var validateUnsignedInteger = require('../../validator').validateUnsignedInteger;
 
+
 module.exports = function (plop) {
     plop.load('../../actionTypes.js');
+    plop.setPrompt('recursive', require('inquirer-recursive'));
+    // helpers for template generation
+    plop.setHelper('repeat', require('handlebars-helper-repeat'));
+    plop.setHelper('is', function (arg1, arg2, opts) {
+        if (arg1 == arg2) {
+            return opts.fn(this)
+        } else {
+            return opts.inverse(this)
+        }
+    });
+    plop.setHelper('isnot', function (arg1, arg2, opts) {
+        if (arg1 != arg2) {
+            return opts.fn(this)
+        } else {
+            return opts.inverse(this)
+        }
+    });
     plop.setGenerator('VM', {
         description: 'This module generates ARM template file for a VM',
-        prompts: [{
+        prompts: [
+            {
                 type: 'input',
                 name: 'name',
                 message: 'What is the template name?',
@@ -147,12 +166,28 @@ module.exports = function (plop) {
                 message: 'Do you want to join the VM to Active Directory?',
             },
             {
-                type: 'input',
-                name: 'nbExtension',
-                default: 0,
-                message: 'How many VM extensions do you want to add?',
-                validate: validateUnsignedInteger
-            },
+                type: 'recursive',
+                name: 'extensions',
+                message: 'Do you want to add an extension?',
+                prompts: [
+                    {
+                        type: 'list',
+                        name: 'extensionType',
+                        default: 0,
+                        message: 'Which Extension?',
+                        choices: ['Generic', 'CustomScript', 'DSC']
+                    },
+                    {
+                        type: 'confirm',
+                        name: 'onboardAzureAutomation',
+                        default: false,
+                        message: 'Do you want to onboard the VM to an Azure Automation account?',
+                        when: function (answers) {
+                            return "DSC" == answers.extensionType;
+                        }
+                    }
+                ]
+            }
         ], // array of inquirer prompts
         actions: [
             {

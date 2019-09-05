@@ -95,6 +95,28 @@
       "value": ""
     },
     {{/if}}
+    {{#each extensions}}
+    {{#is extensionType "Generic"}}
+    {{/is}}
+    {{#is extensionType "CustomScript"}}
+    "scriptURL": {
+      "value": ""
+    },
+    {{/is}}
+    {{#is extensionType "DSC"}}
+    {{#if onboardAzureAutomation}}
+    "automationAccountName": {
+      "value": ""
+    },
+    "automationResourceGroupName": {
+      "value": ""
+    },
+    "nodeConfigurationName": {
+      "value": ""
+    },
+    {{else}}
+    {{/is}}
+    {{/each}}
     "vmSize": {
       "value": ""
     },
