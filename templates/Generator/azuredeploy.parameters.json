@@ -5,12 +5,6 @@
     "{{camelCase name}}Name": {
       "value": ""
     },
-    "subnetName": {
-      "value": ""
-    },
-    "location": {
-      "value": ""
-    },
     "tagValues": {
       "value": {}
     }
