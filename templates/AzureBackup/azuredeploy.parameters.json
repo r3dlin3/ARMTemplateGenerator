@@ -1,0 +1,107 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "vaultName": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "policyName": {
+          "value": "DefaultPolicy"
+      },
+      {{#is backupPolicy "Weekly"}}
+      "scheduleRunDays": {
+        "value": "## TO BE DEFINED ##"
+      },
+      "scheduleRunTimes": {
+        "value": "## TO BE DEFINED ##"
+      },
+      "timeZone": {
+          "value": "UTC"
+      },
+      "weeklyRetentionDurationCount": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "daysOfTheWeekForMontlyRetention": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "weeksOfTheMonthForMonthlyRetention": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "monthlyRetentionDurationCount": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "monthsOfYear": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "daysOfTheWeekForYearlyRetention": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "weeksOfTheMonthForYearlyRetention": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "yearlyRetentionDurationCount": {
+          "value": "## TO BE DEFINED ##"
+      },
+      {{/is}}
+      {{#is backupPolicy "Daily"}}
+      "scheduleRunTimes": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "timeZone": {
+          "value": "UTC"
+      },
+      "instantRpRetentionRangeInDays": {
+          "value": 2
+      },
+      "dailyRetentionDurationCount": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "daysOfTheWeek": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "weeklyRetentionDurationCount": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "monthlyRetentionDurationCount": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "monthsOfYear": {
+          "value": "## TO BE DEFINED ##"
+      },
+      "yearlyRetentionDurationCount": {
+          "value": "## TO BE DEFINED ##"
+      },
+      {{/is}}{{!-- backupPolicy "Daily" --}}
+      {{#if isDiagnosticsEnabled}}
+      "logsRetentionInDays": {
+          "value": 0
+      },
+      {{#if useStorageAccountForDiagnostics}}
+      "diagnosticStorageAccountName": {
+          "value": "## TO BE DEFINED ##"
+      },
+      {{#unless existingStorageForDiagnostics}}
+      "storageAccountType": {
+          "value": "Standard_LRS"
+      },
+      {{/unless}}
+      {{/if}}{{!-- if useStorageAccountForDiagnostics --}}
+      {{#if useLogAnalyticsForDiagnostics}}
+      "logAnalyticsWorkspace": {
+          "value": "## TO BE DEFINED ##"
+      },
+      {{#unless existingLogAnalyticsForDiagnostics}}
+      "logAnalyticsSku": {
+          "value": "Free"
+      },
+      {{/unless}}
+      {{/if}}
+      {{/if}}{{!-- if isDiagnosticsEnabled --}}
+      "location": {
+          "value": "[resourceGroup().location]"
+      },
+      "tagValues": {
+          "value": {}
+      }
+  }
+}
