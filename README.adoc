@@ -25,6 +25,7 @@ At this moment, ARMTemplateGenerator supports:
 * Azure Data Lake Store
 * Azure Key Vault
 * Azure SQL
+* Recovery Services Vault
 * VM
 
 === Why create or use ARMTemplateGenerator?
