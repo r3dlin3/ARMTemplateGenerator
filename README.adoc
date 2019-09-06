@@ -1,5 +1,4 @@
-ARMTemplateGenerator
-====================
+= ARMTemplateGenerator
 ifdef::env-github[]
 :imagesdir: https://raw.githubusercontent.com/r3dlin3/ARMTemplateGenerator/master/
 :tip-caption: :bulb:
@@ -22,11 +21,11 @@ It is based on plop. Instead of a ton of parameters, the CLI will ask questions 
 
 At this moment, ARMTemplateGenerator supports:
 
-* VM
-* Azure Key Vault
-* Azure Data Lake Store
 * Azure App Service
+* Azure Data Lake Store
+* Azure Key Vault
 * Azure SQL
+* VM
 
 === Why create or use ARMTemplateGenerator?
 
@@ -87,6 +86,51 @@ And the generated file:
 
 * link:assets/azuredeploy.json[The ARM template]
 * link:assets/azuredeploy.parameters.json[The parameters]
+
+== Built-In Actions
+
+A few actions has been added in addition of the https://plopjs.com/documentation/#built-in-actions[built-in actions of plopjs].
+
+`printHelpDeployment`:: Display help messages for deploying ARM templates
+
+== Built-In Helpers
+
+A few helpers have been added for the templates in addition of the https://plopjs.com/documentation/#built-in-helpers[helpers provided by plopjs].
+
+`repeat`:: Repeat a block based on an integer. Example:
+----
+{{#repeat count=nbDataDisk}}
+    {
+        "diskSizeGB": "[parameters('sizeOfEachDataDiskInGB')]",
+        "lun": {{@index}},
+        "createOption": "Empty"
+    }{{#unless @last}},{{/unless}}
+{{/repeat}}
+----
+`is`:: Test equality with a value (string or integer). Example:
+----
+{{#is privateIPtype "Static"}}
+"privateIP": {
+    "type": "string",
+    "metadata": {
+        "description": "Static private IP"
+    }
+},
+{{/is}}
+----
+`isnot`:: The reverse of `is`
+
+== How to contribute
+
+For new modules, a generator "Generator" has been created:
+
+----
+> plop Generator "Azure Backup"
+√  ++ \templates\AzureBackup\azuredeploy.json
+√  ++ \templates\AzureBackup\azuredeploy.parameters.json
+√  ++ \templates\AzureBackup\component.js
+----
+
 
 == Reminder
 === Deploy a template
