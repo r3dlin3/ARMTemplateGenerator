@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Automation account to use.  If this account exists, check the SKU and tags to make sure they match the exisitng account."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location of the resources"
+            }
+        },
+        "runbookName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the runbook. The name must match the name in the URI."
+            }
+        },
+        "runbookURI": {
+            "type": "string",
+            "metadata": {
+                "description": "The URI for the runbook. "
+            }
+        },
+        "runbookType": {
+            "type": "string",
+            "defaultValue": "Script",
+            "allowedValues": [
+                "Graph",
+                "Script"
+            ],
+            "metadata": {
+                "description": "The type of runbook"
+            }
+        },
+        "runbookDescription": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The description of the runbook."
+            }
+        },
+        "logProgress": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": ""
+            }
+        },
+        "logVerbose": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": ""
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[concat(parameters('automationAccountName'), '/', parameters('runbookName'))]",
+            "type": "Microsoft.Automation/automationAccounts/runbooks",
+            "apiVersion": "2018-06-30",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "runbookType": "[parameters('runbookType')]",
+                "logProgress": "[parameters('logProgress')]",
+                "logVerbose": "[parameters('logVerbose')]",
+                "description": "[parameters('runbookDescription')]",
+                "publishContentLink": {
+                    "uri": "[parameters('runbookURI')]",
+                    "version": "1.0.0.0"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

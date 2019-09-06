@@ -1,0 +1,71 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Azure Automation account to deploy the connection to."
+            }
+        },
+        "connectionName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Azure Automation connection asset. The connection type must be deployed before you can deploy the connection.  In this case, we are using Azure since that is created for all users."
+            }
+        },
+        "connectionDescription": {
+            "type": "string",
+            "metadata": {
+                "description": "The description of the Azure Automation connection asset."
+            }
+        },
+        "connectionThumbprint": {
+            "type": "string",
+            "metadata": {
+                "description": "The thumprint value for the certificate."
+            }
+        },
+        "connectionApplicationId": {
+            "type": "string",
+            "metadata": {
+                "description": "The ID of the Application you want to connect with"
+            }
+        },
+        "connectionTenantId": {
+            "type": "string",
+            "metadata": {
+                "description": "The ID of the tenant you want to connect to."
+            }
+        },
+        "connectionSubscriptionId": {
+            "type": "string",
+            "metadata": {
+                "description": "The ID of the Azure subscription you want to connect to."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[concat(parameters('automationAccountName'), '/', parameters('connectionName'))]",
+            "type": "Microsoft.Automation/automationAccounts/connections",
+            "apiVersion": "2015-10-31",
+            "tags": {},
+            "properties": {
+                "name": "[parameters('connectionName')]",
+                "description": "[parameters('connectionDescription')]",
+                "connectionType": {
+                    "name": "AzureServicePrincipal"
+                },
+                "fieldDefinitionValues": {
+                    "ApplicationId": "[parameters('connectionApplicationId')]",
+                    "TenantId": "[parameters('connectionTenantId')]",
+                    "SubscriptionID": "[parameters('connectionSubscriptionId')]",
+                    "CertificateThumbprint": "[parameters('connectionThumbprint')]"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

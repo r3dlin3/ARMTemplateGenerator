@@ -1,0 +1,127 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Automation account to use.  If this account exists, check the SKU and tags to make sure they match the exisitng account."
+            }
+        },
+        "scheduleName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the schedule."
+            }
+        },
+        "scheduleDescription": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The description of the schedule."
+            }
+        },
+        "runbookName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the runbook to associate the schedule with."
+            }
+        },
+        "startTime": {
+            "type": "string",
+            "defaultValue": "12/30/2015 12:00:00",
+            "metadata": {
+                "description": "The time to start the schedule on.  This is a datetime in Automation."
+            }
+        },
+        "expiryTime": {
+            "type": "string",
+            "defaultValue": "9999-12-31T23:59:00+01:00",
+            "metadata": {
+                "description": "The time to start the schedule on.  This is a datetime in Automation."
+            }
+        },
+        "frequency": {
+            "type": "string",
+            "allowedValues": [
+                "OneTime", "Day", "Hour", "Week", "Month"
+            ],
+            "metadata": {
+                "description": "The frequency of the schedule."
+            }
+        },
+        "interval": {
+            "type": "int",
+            "metadata": {
+                "description": "The interval for the schedule to repeat on. "
+            }
+        },
+        "timeZone": {
+            "type": "string",
+            "defaultValue": "UTC",
+            "allowedValues": [
+                "Europe/Paris","UTC","Europe/Berlin"
+            ],
+            "metadata": {
+                "description": "The GUID for the job schedule.  This identifier links the schedule to the runbook."
+            }
+        },
+        "jobScheduleGuid": {
+            "type": "string",
+            "metadata": {
+                "description": "The GUID for the job schedule.  This identifier links the schedule to the runbook."
+            }
+        },
+        "advancedSchedule": {
+            "type": "object",
+            "defaultValue": {},
+            "metadata": {
+                "description": "Sets the advanced schedule. See https://docs.microsoft.com/en-us/azure/templates/microsoft.automation/2015-10-31/automationaccounts/schedules#AdvancedSchedule"
+            }
+        },
+        "jobParameters": {
+            "type": "object",
+            "defaultValue": {},
+            "metadata": {
+                "description": "sets a list of job properties."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[concat(parameters('automationAccountName'), '/', parameters('scheduleName'))]",
+            "type": "Microsoft.Automation/automationAccounts/schedules",
+            "apiVersion": "2015-10-31",
+            "properties": {
+                "description": "[parameters('scheduleDescription')]",
+                "startTime": "[parameters('startTime')]",
+                "expiryTime": "[parameters('expiryTime')]",
+                "isEnabled": "true",
+                "interval": "[parameters('interval')]",
+                "frequency": "[parameters('frequency')]",
+                "timeZone": "[parameters('timeZone')]",
+                "advancedSchedule": "[parameters('advancedSchedule')]"
+            }
+        },
+        {
+            "name": "[concat(parameters('automationAccountName'), '/', parameters('jobScheduleGuid'))]",
+            "type": "Microsoft.Automation/automationAccounts/jobSchedules",
+            "apiVersion": "2015-10-31",
+            "dependsOn": [
+                "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'), '/schedules/', parameters('scheduleName'))]"
+            ],
+            "properties": {
+                "jobScheduleId": "[parameters('jobScheduleGuid')]",
+                "schedule": {
+                    "name": "[parameters('scheduleName')]"
+                },
+                "runbook": {
+                    "name": "[parameters('runbookName')]"
+                },
+                "parameters": "[parameters('jobParameters')]"
+            }
+        }
+    ],
+    "outputs": {}
+}

@@ -1,0 +1,196 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Azure Automation account to deploy to."
+            }
+        },
+        "pricingTier": {
+            "type": "string",
+            "allowedValues": [
+                "Free",
+                "Basic"
+            ],
+            "metadata": {
+                "description": "The pricing tier for the account."
+            }
+        },
+        "modules": {
+            "type": "array",
+            "metadata": {
+                "description": "List of module to deploy in the form of an object with keys 'Name' and 'Url'"
+            }
+        },
+        "runbooks": {
+            "type": "array",
+            "metadata": {
+                "description": "List of runbook to deploy in the form of an object with keys 'Name' and 'RelativePath'"
+            }
+        },
+        "schedules": {
+            "type": "array",
+            "metadata": {
+                "description": "List of schedule to deploy in the form of an object with keys 'Name' and 'RelativePath'"
+            }
+        },
+        "tomorrow": {
+            "type": "string",
+            "metadata": {
+                "description": "Date of tomorrow for start time"
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "allowedValues": [
+                "East US 2",
+                "eastus2",
+                "Central US",
+                "centralus",
+                "North Europe",
+                "northeurope",
+                "West Europe",
+                "westeurope"
+            ],
+            "metadata": {
+                "description": "The region to deploy the resources into"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[parameters('automationAccountName')]",
+            "type": "Microsoft.Automation/automationAccounts",
+            "apiVersion": "2015-10-31",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "tags": {},
+            "properties": {
+                "sku": {
+                    "name": "[parameters('pricingTier')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "ModulesNestedDeployment",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), 'modules/deploy.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "automationAccountName": {
+                        "value": "[parameters('automationAccountName')]"
+                    },
+                    "modules": {
+                        "value": "[parameters('modules')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[parameters('automationAccountName')]"
+            ]
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "[concat('RunBookNestedDeployment',parameters('runbooks')[copyIndex()].Name)]",
+            "copy": {
+                "name": "runbooksLoop",
+                "count": "[length(parameters('runbooks'))]"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), 'runbooks/deployPublishedRunbook.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "automationAccountName": {
+                        "value": "[parameters('automationAccountName')]"
+                    },
+                    "runbookName": {
+                        "value": "[parameters('runbooks')[copyIndex()].Name]"
+                    },
+                    "runbookURI": {
+                        "value": "[concat(parameters('_artifactsLocation'), parameters('runbooks')[copyIndex()].RelativePath, parameters('_artifactsLocationSasToken'))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[parameters('automationAccountName')]"
+            ]
+        }/*,
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "[concat('ScheduleNestedDeployment',parameters('schedules')[copyIndex()].scheduleName)]",
+            "copy": {
+                "name": "schedulesLoop",
+                "count": "[length(parameters('schedules'))]"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), 'schedule/deploy.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "automationAccountName": {
+                        "value": ""[parameters('automationAccountName')]""
+                    },
+                    "runbookName": {
+                        "value": "[parameters('schedules')[copyIndex()].runbookName]"
+                    },
+                    "scheduleName": {
+                        "value": "[parameters('schedules')[copyIndex()].scheduleName]"
+                    },
+                    "startTime": {
+                        "value": "[concat(parameters('tomorrow'), ' ', parameters('schedules')[copyIndex()].startTime)]"
+                    },
+                    "frequency": {
+                        "value": "[parameters('schedules')[copyIndex()].frequency]"
+                    },
+                    "interval": {
+                        "value": "[parameters('schedules')[copyIndex()].interval]"
+                    },
+                    "timeZone": {
+                        "value": "[parameters('schedules')[copyIndex()].timeZone]"
+                    },
+                    "jobScheduleGuid": {
+                        "value": "[guid(resourceGroup().id, parameters('automationAccountName'), deployment().name, parameters('schedules')[copyIndex()].scheduleName)]"
+                    },
+                    "advancedSchedule": {
+                        "value": "[parameters('schedules')[copyIndex()].advancedSchedule]"
+                    },
+                    "jobParameters": {
+                        "value": "[parameters('schedules')[copyIndex()].jobParameters]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat('RunBookNestedDeployment',parameters('schedules')[copyIndex()].runbookName)]"
+            ]
+        }*/
+    ],
+    "outputs": {}
+}

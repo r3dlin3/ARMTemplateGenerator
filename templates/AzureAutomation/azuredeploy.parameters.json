@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "value": "{{name}}"
+        },
+        "pricingTier": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "modules": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "runbooks": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "schedules": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "tomorrow": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "_artifactsLocation": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "_artifactsLocationSasToken": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "location": {
+            "value": "[resourceGroup().location]"
+        }
+    }
+}

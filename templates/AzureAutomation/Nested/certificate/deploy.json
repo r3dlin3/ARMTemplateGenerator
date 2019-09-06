@@ -1,0 +1,48 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Azure Automation account to deploy the certificate in."
+            }
+        },
+        "certificateName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the certificate."
+            }
+        },
+        "base64Value": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The base 64 value for the certificate."
+            }
+        },
+        "thumbprint": {
+            "type": "string",
+            "metadata": {
+                "description": "The thumprint value for the certificate."
+            }
+        }
+    },
+    "variables": {
+
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('automationAccountName'), '/', parameters('certificateName'))]",
+            "type": "Microsoft.Automation/automationAccounts/certificates",
+            "apiVersion": "2015-10-31",
+            "tags": { },
+            "properties": {
+                "base64Value": "[parameters('base64Value')]",
+                "thumbprint": "[parameters('thumbprint')]"
+            }
+        }
+    ],
+
+
+    "outputs": { }
+}

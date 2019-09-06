@@ -1,0 +1,44 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Automation account to deploy the module to."
+            }
+        },
+        "modules": {
+            "type": "array",
+            "metadata": {
+                "description": "The modules to deploy as an array of JSON object. e.g. {\"name\": \"AzureRM.Profile\", \"url\": \"https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.profile.5.3.4.nupkg\"}",
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location of the resources"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "apiVersion": "2015-10-31",
+            "type": "Microsoft.Automation/automationAccounts/modules",
+            "name": "[concat(parameters('automationAccountName'), '/', parameters('modules')[copyIndex()].name)]",
+            "location": "[parameters('location')]",
+            "copy": {
+                "name": "modulesLoop",
+                "count": "[length(parameters('modules'))]"
+            },
+            "properties": {
+                "contentLink": {
+                    "uri": "[parameters('modules')[copyIndex()].url]"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
