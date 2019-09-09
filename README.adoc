@@ -69,8 +69,7 @@ or
 
 ----
 > plop -v
-CLI version 2.1.0
-Local version 2.3.0
+2.4.0
 ----
 
 === Generate a VM ARM template
@@ -134,7 +133,29 @@ For new modules, a generator "Generator" has been created:
 
 
 == Reminder
-=== Deploy a template
+
+=== Deploy a template using PowerShell Az
+1) Login to Azure
+----
+Login-AzAccount
+Get-AzSubscription
+Set-AzContext -SubscriptionId <subscription ID>
+----
+Or 
+----
+Import-AzContext -Path tomycontext
+----
+2) Create a resource group
+----
+$rg="myrg"
+New-AzResourceGroup $rg -Location "West Europe"
+----
+3) Deploy
+----
+New-AzResourceGroupDeployment -ResourceGroupName $rg -TemplateFile .\generated\mytemplate.json -TemplateParameterFile .\generated\mytemplate.parameters.json -verbose
+----
+
+=== Deploy a template using PowerShell AzureRM
 1) Login to Azure
 ----
 Login-AzureRmAccount
@@ -145,7 +166,7 @@ Or
 ----
 Import-AzureRmContext -Path tomycontext
 ----
-2) Create resource AzureRmResourceGroup
+2) Create a resource group
 ----
 $rg="myrg"
 New-AzureRmResourceGroup $rg -Location "West Europe"

@@ -114,6 +114,8 @@
         },
         "dailyRetentionDurationCount": {
             "type": "int",
+            "minValue": 7,
+            "maxValue": 9999,
             "metadata": {
                 "description": "Number of days you want to retain the backup"
             }
@@ -183,7 +185,7 @@
         },
         {{/unless}}
         {{/if}}
-        {{#if existingLogAnalyticsForDiagnostics}}
+        {{#if useLogAnalyticsForDiagnostics}}
         "logAnalyticsWorkspace": {
             "type": "string",
             "metadata": {
@@ -385,24 +387,27 @@
           }
         {{/is}}
         {{#if isDiagnosticsEnabled}},
+        {{#if useStorageAccountForDiagnostics}}
         {{#unless existingStorageForDiagnostics}}
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2017-06-01",
-            "name": "[variables('diagnosticStorageAccountName')]",
+            "name": "[parameters('diagnosticStorageAccountName')]",
             "location": "[parameters('location')]",
             "sku": {
-                "name": "[variables('storageAccountType')]"
+                "name": "[parameters('storageAccountType')]"
             },
             "kind": "Storage",
             "properties": {}
         },
         {{/unless}}
+        {{/if}}
+        {{#if useLogAnalyticsForDiagnostics}}
         {{#unless existingLogAnalyticsForDiagnostics}}
         {
             "type": "Microsoft.OperationalInsights/workspaces",
             "apiVersion": "2015-11-01-preview",
-            "name": "[variables('logAnalyticsWorkspace')]",
+            "name": "[parameters('logAnalyticsWorkspace')]",
             "location": "[parameters('location')]",
             "properties": {
                 "sku": {
@@ -411,6 +416,7 @@
             }
         },
         {{/unless}}
+        {{/if}}
         {
             "type": "Microsoft.RecoveryServices/vaults/providers/diagnosticSettings",
             "name": "[concat(parameters('vaultName'), '/microsoft.insights/diagnosticSettings')]",
@@ -436,9 +442,9 @@
               "metrics": []
             },
             "dependsOn": [
-              "[resourceId('Microsoft.RecoveryServices/vaults/', parameters('vaultName'))]"{{#unless existingStorageForDiagnostics}},
-              "[resourceId('Microsoft.Storage/storageAccounts/', parameters('diagnosticStorageAccountName'))]"{{/unless}}{{#unless existingLogAnalyticsForDiagnostics}},
-              "[resourceId('microsoft.operationalinsights/workspaces/', parameters('logAnalyticsWorkspace'))]"{{/unless}}
+              "[resourceId('Microsoft.RecoveryServices/vaults/', parameters('vaultName'))]"{{#if useStorageAccountForDiagnostics}}{{#unless existingStorageForDiagnostics}},
+              "[resourceId('Microsoft.Storage/storageAccounts/', parameters('diagnosticStorageAccountName'))]"{{/unless}}{{/if}}{{#if useLogAnalyticsForDiagnostics}}{{#unless existingLogAnalyticsForDiagnostics}},
+              "[resourceId('microsoft.operationalinsights/workspaces/', parameters('logAnalyticsWorkspace'))]"{{/unless}}{{/if}}
             ]
           }
         {{/if}}

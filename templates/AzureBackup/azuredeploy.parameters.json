@@ -3,49 +3,49 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
       "vaultName": {
-          "value": "## TO BE DEFINED ##"
+          "value": "{{name}}"
       },
       "policyName": {
           "value": "DefaultPolicy"
       },
       {{#is backupPolicy "Weekly"}}
       "scheduleRunDays": {
-        "value": "## TO BE DEFINED ##"
+        "value": ["Monday"]
       },
       "scheduleRunTimes": {
-        "value": "## TO BE DEFINED ##"
+        "value": ["01:00"]
       },
       "timeZone": {
           "value": "UTC"
       },
       "weeklyRetentionDurationCount": {
-          "value": "## TO BE DEFINED ##"
+          "value": 1
       },
       "daysOfTheWeekForMontlyRetention": {
-          "value": "## TO BE DEFINED ##"
+          "value": ["Monday"]
       },
       "weeksOfTheMonthForMonthlyRetention": {
-          "value": "## TO BE DEFINED ##"
+          "value": ["First", "Second", "Third", "Fourth", "Last"]
       },
       "monthlyRetentionDurationCount": {
-          "value": "## TO BE DEFINED ##"
+          "value": 1
       },
       "monthsOfYear": {
-          "value": "## TO BE DEFINED ##"
+          "value": ["January"]
       },
       "daysOfTheWeekForYearlyRetention": {
-          "value": "## TO BE DEFINED ##"
+          "value": ["Monday"]
       },
       "weeksOfTheMonthForYearlyRetention": {
-          "value": "## TO BE DEFINED ##"
+          "value": ["First", "Second", "Third", "Fourth", "Last"]
       },
       "yearlyRetentionDurationCount": {
-          "value": "## TO BE DEFINED ##"
+          "value": 1
       },
       {{/is}}
       {{#is backupPolicy "Daily"}}
       "scheduleRunTimes": {
-          "value": "## TO BE DEFINED ##"
+          "value": ["01:00"]
       },
       "timeZone": {
           "value": "UTC"
@@ -54,22 +54,22 @@
           "value": 2
       },
       "dailyRetentionDurationCount": {
-          "value": "## TO BE DEFINED ##"
+          "value": 7
       },
       "daysOfTheWeek": {
-          "value": "## TO BE DEFINED ##"
+          "value": ["Monday"]
       },
       "weeklyRetentionDurationCount": {
-          "value": "## TO BE DEFINED ##"
+          "value": 1
       },
       "monthlyRetentionDurationCount": {
-          "value": "## TO BE DEFINED ##"
+          "value": 1
       },
       "monthsOfYear": {
-          "value": "## TO BE DEFINED ##"
+          "value": ["January"]
       },
       "yearlyRetentionDurationCount": {
-          "value": "## TO BE DEFINED ##"
+          "value": 1
       },
       {{/is}}{{!-- backupPolicy "Daily" --}}
       {{#if isDiagnosticsEnabled}}
@@ -97,9 +97,6 @@
       {{/unless}}
       {{/if}}
       {{/if}}{{!-- if isDiagnosticsEnabled --}}
-      "location": {
-          "value": "[resourceGroup().location]"
-      },
       "tagValues": {
           "value": {}
       }
