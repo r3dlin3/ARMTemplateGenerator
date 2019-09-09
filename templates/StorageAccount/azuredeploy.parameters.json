@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "storageAccountName": {
+          "value": "{{lowerCase name}}"
+      },
+      "storageAccountType": {
+          "value": "Standard_LRS"
+      },
+      "accessTier": {
+          "value": "Hot"
+      },
+      {{#unless enableHns}}
+      "storageAccountKind": {
+          "value": "StorageV2"
+      },
+      {{/unless}}
+      "advancedThreatProtectionEnabled": {
+          "value": false
+      },
+      {{#if createContainers}}
+      "containers": {
+          "value": [
+              {
+                  "name": "container1",
+                  "publicAccess": "None"
+              },{
+                  "name": "container2",
+                  "publicAccess": "Blob"
+              }]
+      },
+      {{/if}}
+      {{#if createFileshares}}
+      "shares": {
+          "value": ["share1", "share2"]
+      },
+      {{/if}}
+      "tagValues": {
+        "value": {}
+      }
+  }
+}
