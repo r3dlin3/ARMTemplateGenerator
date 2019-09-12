@@ -108,7 +108,11 @@
             "sku": {
                 "name": "[parameters('storageAccountType')]"
             },
+            {{#if enableHns}}
+            "kind": "StorageV2",
+            {{else}}
             "kind": "[parameters('storageAccountKind')]",
+            {{/if}}
             "properties": {
                 {{#if enableFirewall}}
                 "networkAcls": {
@@ -125,7 +129,7 @@
                     "defaultAction": "Deny"
                 },
                 {{/if}}
-                "accessTier": "Hot",
+                "accessTier": "[parameters('accessTier')]",
                 "encryption": {
                     "keySource": "Microsoft.Storage",
                     "services": {
