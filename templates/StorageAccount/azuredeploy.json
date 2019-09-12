@@ -129,7 +129,11 @@
                     "defaultAction": "Deny"
                 },
                 {{/if}}
+<<<<<<< HEAD
                 "accessTier": "[parameters('accessTier')]",
+=======
+                "accessTier": "Hot",
+>>>>>>> ce45b88cf51728a62686b8e39f3d5642afb15307
                 "encryption": {
                     "keySource": "Microsoft.Storage",
                     "services": {
