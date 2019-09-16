@@ -43,14 +43,14 @@
     },
     "resources": [
         {
-            "name": "[concat(parameters('existingRecoveryServicesVault'), '/', variables('backupFabric'), '/', variables('v2VmContainer'), parameters('virtualMachinesResourceGroup'), ';', parameters('virtualMachineName'), '/', variables('v2Vm'), parameters('virtualMachineResourceGroup'), ';', parameters('virtualMachineName'))]",
+            "name": "[concat(parameters('existingRecoveryServicesVault'), '/', variables('backupFabric'), '/', variables('v2VmContainer'), parameters('virtualMachineResourceGroup'), ';', parameters('virtualMachineName'), '/', variables('v2Vm'), parameters('virtualMachineResourceGroup'), ';', parameters('virtualMachineName'))]",
             "apiVersion": "2016-06-01",
             "location": "[parameters('location')]",
             "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
             "properties": {
                 "protectedItemType": "[variables('v2VmType')]",
                 "policyId": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies',parameters('existingRecoveryServicesVault'),parameters('existingBackupPolicy') )]",
-                "sourceResourceId": "[resourceId(subscription().subscriptionId,parameters('virtualMachinesResourceGroup'),'Microsoft.Compute/virtualMachines',parameters('virtualMachineName'))]"
+                "sourceResourceId": "[resourceId(subscription().subscriptionId,parameters('virtualMachineResourceGroup'),'Microsoft.Compute/virtualMachines',parameters('virtualMachineName'))]"
             }
         }
     ]
