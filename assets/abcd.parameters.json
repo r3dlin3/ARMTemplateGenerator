@@ -1,0 +1,54 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": ""
+    },
+    "subnetName": {
+      "value": ""
+    },
+    "vnetResourceGroup": {
+      "value": ""
+    },
+    "dnsLabelPrefix": {
+      "value": "abcd"
+    },
+    "publicIPAddressName": {
+        "value": ""
+    },
+    "networkSecurityGroupName": {
+        "value": ""
+    },
+    "diskNames": {
+      "value": ["", "",""]
+    },
+    "sizeOfEachDataDiskInGB": {
+        "value": ""
+    },
+    "nicName": {
+      "value": ""
+    },
+    "adminUsername": {
+      "value": ""
+    },
+    "adminPassword": {
+      "value": ""
+    },
+    "vmName": {
+      "value": "abcd"
+    },
+    "autoShutdownDailyRecurrence": {
+      "value": "1900"
+    },
+    "autoShutdownTimezone": {
+      "value": ""
+    },
+    "vmSize": {
+      "value": ""
+    },
+    "tagValues": {
+      "value": {}
+    }
+  }
+}

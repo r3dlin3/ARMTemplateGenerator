@@ -1,0 +1,309 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dnsLabelPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Unique DNS Name for the Virtual Machine"
+            }
+        },
+        "publicIPAddressName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the public IP address"
+            }
+        },
+        "vnetName": {
+           "type": "string",
+           "metadata": {
+                "description": "Name of the new or existing VNET"
+            }
+        },
+        "subnetName": {
+            "type": "string",
+            "metadata": {
+                 "description": "Name of the new or existing subnet"
+             }
+         },
+        "vnetResourceGroup": {
+            "type": "string",
+            "metadata": {
+                 "description": "Resource group of the new or existing VNET"
+             }
+         },
+        "networkSecurityGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the NSG for remote Access"
+            }
+        },
+        "nicName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the NIC"
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "The region to deploy the resources into"
+            }
+        },      
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_D2_v2",
+            "allowedValues": [
+                "Basic_A2", "Basic_A3","Basic_A4","Standard_A10", "Standard_A11",
+                "Standard_A2", "Standard_A2_v2","Standard_A2m_v2", "Standard_A3",
+                "Standard_A4", "Standard_A4_v2","Standard_A4m_v2", "Standard_A5",
+                "Standard_A6", "Standard_A7","Standard_A8", "Standard_A8_v2",
+                "Standard_A8m_v2", "Standard_A9","Standard_D11", "Standard_D11_v2",
+                "Standard_D12", "Standard_D12_v2","Standard_D13", "Standard_D13_v2",
+                "Standard_D14", "Standard_D14_v2","Standard_D15_v2", "Standard_D2",
+                "Standard_D2_v2", "Standard_D3","Standard_D3_v2", "Standard_D4",
+                "Standard_D4_v2", "Standard_D5_v2","Standard_DS11","Standard_DS11_v2",
+                "Standard_DS12", "Standard_DS12_v2", "Standard_DS13", "Standard_DS13_v2",
+                "Standard_DS14", "Standard_DS14_v2", "Standard_DS15_v2", "Standard_DS2",
+                "Standard_DS2_v2", "Standard_DS3", "Standard_DS3_v2", "Standard_DS4",
+                "Standard_DS4_v2", "Standard_DS5_v2", "Standard_F16", "Standard_F16s",
+                "Standard_F2", "Standard_F2s", "Standard_F4", "Standard_F4s",
+                "Standard_F8", "Standard_F8s", "Standard_G1", "Standard_G2",
+                "Standard_G3", "Standard_G4", "Standard_G5", "Standard_GS1",
+                "Standard_GS2", "Standard_GS3", "Standard_GS4", "Standard_GS5",
+                "Standard_H16", "Standard_H16m", "Standard_H16mr", "Standard_H16r",
+                "Standard_H8", "Standard_H8m", "Standard_NC12", "Standard_NC24",
+                "Standard_NC24r", "Standard_NC6", "Standard_NV12", "Standard_NV24",
+                "Standard_NV6"
+              ],
+            "metadata": {
+                "description": "Size of VM"
+            }
+        },
+        "diskNames": {
+            "type": "array",
+            "metadata": {
+                "description": "Names for each disk, including OS disk"
+            }
+        },
+        "sizeOfEachDataDiskInGB": {
+            "type": "string",
+            "metadata": {
+                "description": "Size of each data disk in GB"
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Username for the Virtual Machine."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for the Virtual Machine."
+            }
+        },
+        "vmName": {
+           "type": "string",
+           "metadata": {
+                "description": "Name of the VM"
+            }
+        },
+        "autoShutdownName": {
+            "type": "string",
+            "defaultValue": "[concat('shutdown-computevm-',parameters('vmName'))]",
+            "metadata": {
+                "description": "Name of the schedules resource"
+            }
+        },
+        "autoShutdownDailyRecurrence": {
+            "type": "string",
+            "metadata": {
+                "description": "The daily recurrence"
+            }
+        },
+        "autoShutdownTimezone": {
+            "type": "string",
+            "allowedValues": [
+                "Romance Standard Time",
+                "Pacific Standard time"
+            ],
+            "metadata": {
+                "description": "The daily recurrence"
+            }
+        },
+        "computerName": {
+            "type": "string",
+            "defaultValue": "[parameters('vmName')]",
+            "metadata": {
+                 "description": "Name of the VM"
+             }
+        },
+        "tagValues": {
+            "type": "object",
+            "defaultValue": {}
+        }
+    },
+    "variables": {
+        "imagePublisher": "MicrosoftWindowsServer",
+        "imageOffer": "WindowsServer",
+        "imageSKU": "2016-Datacenter",
+        "imageVersion": "latest",
+        "publicIPAddressType": "Dynamic",
+        "vnetID": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
+        "subnetID": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
+        "apiVersion": "2015-06-15"
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[parameters('publicIPAddressName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+                "dnsSettings": {
+                    "domainNameLabel": "[parameters('dnsLabelPrefix')]"
+                }
+            }
+        },
+        {
+            "name": "[parameters('networkSecurityGroupName')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2016-09-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "default-allow-remoteaccess",
+                        "properties": {
+                            "priority": 1000,
+                            "sourceAddressPrefix": "*",
+                            "protocol": "Tcp",
+                            "destinationPortRange": "3389",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('nicName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]",
+                "[parameters('networkSecurityGroupName')]"
+                
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]"
+                            },
+                            "subnet": {
+                                "id": "[variables('subnetID')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "microsoft.devtestlab/schedules",
+            "name": "[parameters('autoShutdownName')]",
+            "apiVersion": "2016-05-15",
+            "location": "[parameters('location')]",
+            "properties": {
+                "status": "Enabled",
+                "taskType": "ComputeVmShutdownTask",
+                "dailyRecurrence": {
+                    "time": "[parameters('autoShutdownDailyRecurrence')]"
+                },
+                "timeZoneId": "[parameters('autoShutdownTimezone')]",
+                "notificationSettings": {
+                    "status": "Disabled",
+                    "timeInMinutes": 30
+                },
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+            ]
+        },
+        {
+            "apiVersion": "2016-04-30-preview",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('vmName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('nicName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('computerName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                    
+                    "imageReference": {
+                        "publisher": "[variables('imagePublisher')]",
+                        "offer": "[variables('imageOffer')]",
+                        "sku": "[variables('imageSKU')]",
+                        "version": "[variables('imageVersion')]"
+                    },
+                    "dataDisks": [
+                        {
+                            "diskSizeGB": "[parameters('sizeOfEachDataDiskInGB')]",
+                            "lun": 0,
+                            "name": "[parameters('diskNames')[add(1,0)]]",
+                            "createOption": "Empty",
+                            "caching": "ReadOnly",
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS"
+                            }
+                        },
+                        {
+                            "diskSizeGB": "[parameters('sizeOfEachDataDiskInGB')]",
+                            "lun": 1,
+                            "name": "[parameters('diskNames')[add(1,1)]]",
+                            "createOption": "Empty",
+                            "caching": "ReadOnly",
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS"
+                            }
+                        }
+                    ],
+                    "osDisk": {
+                        "createOption": "FromImage",
+                        "name": "[parameters('diskNames')[0]]",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('nicName'))]"
+                        }
+                    ]
+                }
+            }
+        }    ]
+}
