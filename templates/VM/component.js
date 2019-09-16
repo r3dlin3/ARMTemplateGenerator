@@ -83,12 +83,11 @@ module.exports = function (plop) {
                 name: 'osPublisher',
                 default: 0,
                 message: 'What is the OS?',
-                choices: ['MicrosoftWindowsServer', 'Canonical', 'RedHat']
+                choices: ['MicrosoftWindowsServer', 'Canonical', 'RedHat', 'CustomImage']
             },
             {
                 type: 'list',
                 name: 'osOffer',
-                default: 0,
                 message: 'What is the OS offer?',
                 choices: function (answers) {
                     switch (answers.osPublisher) {
@@ -98,17 +97,24 @@ module.exports = function (plop) {
                             return ['UbuntuServer']
                         case 'RedHat':
                             return ['RHEL']
+                        case 'CustomImage':
+                            return ['CustomImage'];
                         default:
                             break;
                     }
+                },
+                when: function (answers) {
+                    return 'CustomImage' != answers.osPublisher;
                 }
             },
             {
                 type: 'list',
                 name: 'osSku',
-                default: 0,
                 message: 'What is the OS SKU?',
                 choices: function (answers) {
+                    if ('CustomImage' == answers.osPublisher) {
+                        return ['CustomImage'];
+                    }
                     switch (answers.osOffer) {
                         case 'WindowsServer':
                             return ["2012-Datacenter",
@@ -129,6 +135,9 @@ module.exports = function (plop) {
                         default:
                             break;
                     }
+                },
+                when: function (answers) {
+                    return 'CustomImage' != answers.osPublisher;
                 }
             },
             {

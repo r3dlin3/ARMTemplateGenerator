@@ -41,7 +41,23 @@
         "value": ""
     },
     {{/is}}
+    {{#is osPublisher 'CustomImage'}}
+    "imageName": {
+      "value": ""
+    },
+    "imageNameResourceGroupName": {
+      "value": ""
+    },
+    {{/is}}
+    {{#is nbDataDisk 0}}
+    "diskName": {
+      "value": ""
+    },
+    {{/is}}
     {{#isnot nbDataDisk 0}}
+    "diskNames": {
+      "value": ["", {{#repeat count=nbDataDisk}}""{{#unless @last}},{{/unless}}{{/repeat}}]
+    },
     "sizeOfEachDataDiskInGB": {
         "value": ""
     },

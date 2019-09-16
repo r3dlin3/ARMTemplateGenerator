@@ -111,7 +111,21 @@
                 "description": "Size of VM"
             }
         },
+        {{#is nbDataDisk 0}}
+        "diskName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for OS disk"
+            }
+        },
+        {{/is}}
         {{#isnot nbDataDisk 0}}
+        "diskNames": {
+            "type": "array",
+            "metadata": {
+                "description": "Names for each disk, including OS disk"
+            }
+        },
         "sizeOfEachDataDiskInGB": {
             "type": "string",
             "metadata": {
@@ -119,6 +133,20 @@
             }
         },
         {{/isnot}}
+        {{#is osPublisher 'CustomImage'}}
+        "imageName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the custom image"
+            }
+        },
+        "imageNameResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource group of the custom image"
+            }
+        },
+        {{/is}}
         "adminUsername": {
             "type": "string",
             "metadata": {
@@ -265,6 +293,13 @@
                 "description": "URL of the script for the custom script extension"
             }
         },
+        "scriptPath": {
+            "type": "string",
+            "defaultValue": "[concat('./',substring(parameters('scriptURL'),lastIndexOf(parameters('scriptURL'),'/')))]",
+            "metadata": {
+                "description": "Path of the script to execute"
+            }
+        },
         {{/is}}
         {{#is extensionType "DSC"}}
         {{#if onboardAzureAutomation}}
@@ -303,10 +338,12 @@
         }
     },
     "variables": {
+        {{#isnot osPublisher 'CustomImage'}}
         "imagePublisher": "{{osPublisher}}",
         "imageOffer": "{{osOffer}}",
         "imageSKU": "{{osSku}}",
         "imageVersion": "latest",
+        {{/isnot}}
         {{#if hasPublicIP}}
         "publicIPAddressType": "{{publicIPtype}}",
         {{/if}}
@@ -518,23 +555,44 @@
                     "adminPassword": "[parameters('adminPassword')]"
                 },
                 "storageProfile": {
+                    
                     "imageReference": {
+                        {{#is osPublisher 'CustomImage'}}
+                        "id": "[resourceId(parameters('imageNameResourceGroupName'),'Microsoft.Compute/images', parameters('imageName'))]"
+                        {{/is}}
+                        {{#isnot osPublisher 'CustomImage'}}
                         "publisher": "[variables('imagePublisher')]",
                         "offer": "[variables('imageOffer')]",
                         "sku": "[variables('imageSKU')]",
                         "version": "[variables('imageVersion')]"
+                        {{/isnot}}
                     },
                     "dataDisks": [
                     {{#repeat count=nbDataDisk}}
                         {
                             "diskSizeGB": "[parameters('sizeOfEachDataDiskInGB')]",
                             "lun": {{@index}},
-                            "createOption": "Empty"
+                            "name": "[parameters('diskNames')[add(1,{{@index}})]]",
+                            "createOption": "Empty",
+                            "caching": "ReadOnly",
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS"
+                            }
                         }{{#unless @last}},{{/unless}}
                     {{/repeat}}
                     ],
                     "osDisk": {
-                        "createOption": "FromImage"
+                        "createOption": "FromImage",
+                        {{#is nbDataDisk 0}}
+                        "name": "[parameters('diskName')]",
+                        {{/is}}
+                        {{#isnot nbDataDisk 0}}
+                        "name": "[parameters('diskNames')[0]]",
+                        {{/isnot}}
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
                     }
                 },
                 {{#if isDiagnosticsEnabled}}
@@ -569,11 +627,11 @@
                 "contentVersion": "1.0.0.0"
               },
               "parameters": {
-                "existingVirtualMachinesResourceGroup": {
-                  "value": "[resourceGroup().name]"
+                "virtualMachineResourceGroup": {
+                    "value": "[resourceGroup().name]"
                 },
-                "existingVirtualMachines": {
-                  "value": "[parameters('vmName')]"
+                "virtualMachineName": {
+                    "value": "[parameters('vmName')]"
                 },
                 "existingRecoveryServicesVault": {
                   "value": "[parameters('backupVaultName')]"
@@ -624,7 +682,7 @@
                     "timestamp":123456789
                 },
                 "protectedSettings": {
-                    "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File ./script.ps1",
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', parameters('scriptPath'))]",
                     "storageAccountName": "myStorageAccountName",
                     "storageAccountKey": "myStorageAccountKey"
                 }
