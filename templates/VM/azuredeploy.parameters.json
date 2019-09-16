@@ -95,6 +95,17 @@
       "value": ""
     },
     {{/if}}
+    {{#if backup}}
+    "backupVaultName": {
+      "value": ""
+    },
+    "backupVaultResourceGroup": {
+      "value": ""
+    },
+    "backupPolicyName": {
+      "value": ""
+    },
+    {{/if}}
     {{#each extensions}}
     {{#is extensionType "Generic"}}
     {{/is}}
@@ -114,7 +125,7 @@
     "nodeConfigurationName": {
       "value": ""
     },
-    {{else}}
+    {{/if}}
     {{/is}}
     {{/each}}
     "vmSize": {
