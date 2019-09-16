@@ -221,6 +221,39 @@
             }
         },
         {{/if}}
+        {{#if backup}}
+        "backupVaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Existing Backup Vault"
+            }
+        },
+          "backupVaultResourceGroup": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "Resource group of the new or existing Backup Vault"
+            }
+        },
+          "backupPolicyName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of existing Backup Policy in the Backup Vault."
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            }
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": ""
+            }
+        },
+        {{/if}}
         {{#each extensions}}
         {{#is extensionType "Generic"}}
         {{/is}}
@@ -254,7 +287,7 @@
                 "description": "Node configuration Name in the Automation Account"
             }
         },
-        {{else}}
+        {{/if}}
         {{/is}}
         {{/each}}
         "computerName": {
@@ -520,7 +553,37 @@
                     ]
                 }
             }
-        }{{#each extensions}},
+        }{{#if backup}},
+        {
+            "name": "[concat('backup-',parameters('vmName'))]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('backupVaultResourceGroup')]",
+            "apiVersion": "2017-05-10",
+            "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/',parameters('vmName'))]"
+            ],
+            "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                "uri": "[concat(parameters('_artifactsLocation'), 'Nested/backup.json', parameters('_artifactsLocationSasToken'))]",
+                "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                "existingVirtualMachinesResourceGroup": {
+                  "value": "[resourceGroup().name]"
+                },
+                "existingVirtualMachines": {
+                  "value": "[parameters('vmName')]"
+                },
+                "existingRecoveryServicesVault": {
+                  "value": "[parameters('backupVaultName')]"
+                },
+                "existingBackupPolicy": {
+                  "value": "[parameters('backupPolicyName')]"
+                }
+              }
+            }
+        }{{/if}}{{#each extensions}},
         {{#is extensionType "Generic"}}
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",

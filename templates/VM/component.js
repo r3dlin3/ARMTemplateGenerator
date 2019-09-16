@@ -166,6 +166,12 @@ module.exports = function (plop) {
                 message: 'Do you want to join the VM to Active Directory?',
             },
             {
+                type: 'confirm',
+                name: 'backup',
+                default: false,
+                message: 'Do you want to backup the VM?',
+            },
+            {
                 type: 'recursive',
                 name: 'extensions',
                 message: 'Do you want to add an extension?',
@@ -189,20 +195,30 @@ module.exports = function (plop) {
                 ]
             }
         ], // array of inquirer prompts
-        actions: [
-            {
+        actions: function (data) {
+            var actions = [];
+            actions.push({
                 type: "add",
                 path: "generated/{{name}}.json",
                 templateFile: "./azuredeploy.json"
-            },
-            {
+            });
+            actions.push({
                 type: "add",
                 path: "generated/{{name}}.parameters.json",
                 templateFile: "./azuredeploy.parameters.json"
-            },
-            {
-                type: "printHelpDeployment"
+            });
+            if (data.backup) {
+                actions.push({
+                    type: 'add',
+                    path: "generated/nested/backup.json",
+                    force: true,
+                    templateFile: 'nested/backup.json'
+                });
+                actions.push({
+                    type: "printHelpDeployment"
+                });
+                return actions;
             }
-        ] // array of actions
+        } // end of dynamic array of actions
     });
-}
+};
