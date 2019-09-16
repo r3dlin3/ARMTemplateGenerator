@@ -293,6 +293,7 @@
                 "description": "URL of the script for the custom script extension"
             }
         },
+<<<<<<< HEAD
         "scriptPath": {
             "type": "string",
             "defaultValue": "[concat('./',substring(parameters('scriptURL'),lastIndexOf(parameters('scriptURL'),'/')))]",
@@ -300,6 +301,8 @@
                 "description": "Path of the script to execute"
             }
         },
+=======
+>>>>>>> fffd213d8e491d909dd33123bc1629340a317ebe
         {{/is}}
         {{#is extensionType "DSC"}}
         {{#if onboardAzureAutomation}}
