@@ -619,12 +619,12 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "script location"
+                        "[parameters('scriptURL')]"
                     ],
                     "timestamp":123456789
                 },
                 "protectedSettings": {
-                    "commandToExecute": "myExecutionCommand",
+                    "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File ./script.ps1",
                     "storageAccountName": "myStorageAccountName",
                     "storageAccountKey": "myStorageAccountKey"
                 }
