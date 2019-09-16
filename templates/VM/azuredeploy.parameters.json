@@ -105,6 +105,12 @@
     "backupPolicyName": {
       "value": ""
     },
+    "_artifactsLocation": {
+      "value": ""
+    },
+    "_artifactsLocationSasToken": {
+      "value": ""
+    },
     {{/if}}
     {{#each extensions}}
     {{#is extensionType "Generic"}}
@@ -129,9 +135,6 @@
     {{/is}}
     {{/each}}
     "vmSize": {
-      "value": ""
-    },
-    "location": {
       "value": ""
     },
     "tagValues": {
