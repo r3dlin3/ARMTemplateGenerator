@@ -36,6 +36,14 @@
           "value": ["share1", "share2"]
       },
       {{/if}}
+      {{#if enableFirewall}}
+      "allowedAzureServices": {
+        "value": "None"
+      },
+      "ipList": {
+          "value": []
+      },
+      {{/if}}
       "tagValues": {
         "value": {}
       }

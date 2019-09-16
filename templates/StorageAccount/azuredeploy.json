@@ -71,6 +71,21 @@
             }
         },
         {{/if}}
+        {{#if enableFirewall}}
+        "ipList": {
+            "type": "array",
+            "metadata": {
+                "description": "List of IP or IP range in CIDR format. Only IPV4 address is allowed."
+            }
+        },
+        "allowedAzureServices": {
+            "type": "string",
+            "defaultValue": "None",
+            "metadata": {
+                "description": "Allow None, Logging, Metrics, AzureServices"
+            }
+        },
+        {{/if}}
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]",
@@ -93,9 +108,28 @@
             "sku": {
                 "name": "[parameters('storageAccountType')]"
             },
+            {{#if enableHns}}
+            "kind": "StorageV2",
+            {{else}}
             "kind": "[parameters('storageAccountKind')]",
+            {{/if}}
             "properties": {
-                "accessTier": "Hot",
+                {{#if enableFirewall}}
+                "networkAcls": {
+                    "bypass": "[parameters('allowedAzureServices')]",
+                    "virtualNetworkRules": [],
+                    "copy": [{
+                        "name": "ipRules",
+                        "count": "[length(parameters('ipList'))]",
+                        "input": {
+                          "value": "[parameters('ipList')[copyIndex('ipRules')]]",
+                          "action": "Allow"
+                        }
+                    }],
+                    "defaultAction": "Deny"
+                },
+                {{/if}}
+                "accessTier": "[parameters('accessTier')]",
                 "encryption": {
                     "keySource": "Microsoft.Storage",
                     "services": {
