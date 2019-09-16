@@ -223,11 +223,12 @@ module.exports = function (plop) {
                     force: true,
                     templateFile: 'nested/backup.json'
                 });
-                actions.push({
-                    type: "printHelpDeployment"
-                });
-                return actions;
             }
-        } // end of dynamic array of actions
-    });
+            actions.push({
+                type: "printHelpDeployment"
+            });
+            return actions;
+        }
+    } // end of dynamic array of actions
+    );
 };
