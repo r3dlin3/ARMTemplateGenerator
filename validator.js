@@ -1,12 +1,8 @@
-module.exports = function () {
-    return {
-        validateRequired: function (value) {
-            return value.trim() !== '';
-        },
+module.exports.validateRequired = function (v) {
+    return (v && v.trim() !== '')
+};
 
-        validateUnsignedInteger: function (value) {
-            var reg = /^\d+$/;
-            return reg.test(value);
-        }
-    };
+module.exports.validateUnsignedInteger = function (value) {
+    var reg = /^\d+$/;
+    return reg.test(value);
 };
