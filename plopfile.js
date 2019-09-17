@@ -1,13 +1,15 @@
 var glob = require("glob")
 const chalk = require('chalk');
 
+
+
 module.exports = function (plop) {
 
     ///////////////////////////////////
     // Action types
     ///////////////////////////////////
-    plop.load('./actionTypes.js',{},{ actionTypes: true });
-
+    plop.setActionType('printHelpDeployment', require('./actionTypes.js').printHelpDeployment);
+    
     ///////////////////////////////////
     // Prompts
     ///////////////////////////////////

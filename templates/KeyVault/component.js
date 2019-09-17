@@ -1,4 +1,5 @@
 var validateRequired = require('../../validator').validateRequired;
+var actionTypes = require('../../actionTypes');
 
 module.exports.generatorName = 'Key Vault'
 
@@ -48,20 +49,5 @@ module.exports.generator = {
             message: 'Do you want to enable soft delete?',
         },
     ], // array of inquirer prompts
-    actions: [
-        {
-            type: "add",
-            path: "generated/{{name}}.json",
-            templateFile: __dirname + "/azuredeploy.json"
-        },
-        {
-            type: "add",
-            path: "generated/{{name}}.parameters.json",
-            templateFile: __dirname + "/azuredeploy.parameters.json"
-        },
-        {
-            type: "printHelpDeployment"
-        }
-
-    ]  // array of actions
+    actions: actionTypes.DEFAULT_ACTIONS(__dirname)
 };

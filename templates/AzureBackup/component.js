@@ -1,5 +1,5 @@
 var validateRequired = require('../../validator').validateRequired;
-
+var actionTypes = require('../../actionTypes');
 module.exports.generatorName = 'Azure Backup'
 module.exports.generator = {
     description: 'This module generates ARM template file for a Azure Backup',
@@ -60,19 +60,5 @@ module.exports.generator = {
             }
         }
     ], // array of inquirer prompts
-    actions: [
-        {
-            type: "add",
-            path: "generated/{{name}}.json",
-            templateFile: __dirname + "/azuredeploy.json"
-        },
-        {
-            type: "add",
-            path: "generated/{{name}}.parameters.json",
-            templateFile: __dirname + "/azuredeploy.parameters.json"
-        },
-        {
-            type: "printHelpDeployment"
-        }
-    ] // array of actions
+    actions: actionTypes.DEFAULT_ACTIONS(__dirname)
 };

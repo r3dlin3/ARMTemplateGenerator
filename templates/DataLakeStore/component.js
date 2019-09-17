@@ -1,6 +1,6 @@
 var validateRequired = require('../../validator').validateRequired;
 const chalk = require('chalk');
-
+var actionTypes = require('../../actionTypes');
 module.exports.generatorName = require('path').basename(__dirname);
 module.exports.generator = {
     description: 'This module generates ARM template file for a Data Lake Store',
@@ -24,19 +24,5 @@ module.exports.generator = {
             message: 'Do you want to use a Key Vault for encryption?'
         }
     ], // array of inquirer prompts
-    actions: [
-        {
-            type: "add",
-            path: "generated/{{name}}.parameters.json",
-            templateFile: __dirname + "/azuredeploy.parameters.json"
-        },
-        {
-            type: "add",
-            path: "generated/{{name}}.json",
-            templateFile: __dirname + "/azuredeploy.json"
-        },
-        {
-            type: "printHelpDeployment"
-        }
-    ]  // array of actions
+    actions: actionTypes.DEFAULT_ACTIONS(__dirname)
 };

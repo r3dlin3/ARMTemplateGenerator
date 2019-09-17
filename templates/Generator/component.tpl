@@ -1,5 +1,6 @@
 var validateRequired = require('../../validator').validateRequired;
 var validateUnsignedInteger = require('../../validator').validateUnsignedInteger;
+var actionTypes = require('../../actionTypes');
 
 module.exports.generatorName = '{{name}}';
 module.exports.generator = {
@@ -12,19 +13,5 @@ module.exports.generator = {
             validate: validateRequired
         }
     ], // array of inquirer prompts
-    actions: [
-        {
-                type: "add",
-                path: "generated/\{{name}}.json",
-                templateFile: __dirname + "/azuredeploy.json"
-        },
-        {
-                type: "add",
-                path: "generated/\{{name}}.parameters.json",
-                templateFile: __dirname + "/azuredeploy.parameters.json"
-        },
-        {
-                type: "printHelpDeployment"
-        }
-    ] // array of actions
+    actions: actionTypes.DEFAULT_ACTIONS(__dirname)
 };
