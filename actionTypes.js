@@ -10,6 +10,4 @@ module.exports = function (plop) {
         console.log(chalk.yellow('New-AzResourceGroupDeployment -ResourceGroupName <ResourceGroupName> -verbose -TemplateFile .\\generated\\' + answers.name + '.json -TemplateParameterFile .\\generated\\' + answers.name + '.parameters.json'));
         return '';
     });
-
-    plop.setDefaultInclude({ actionTypes: true });
 }
