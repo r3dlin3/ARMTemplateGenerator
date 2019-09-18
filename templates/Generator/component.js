@@ -25,7 +25,7 @@ module.exports.generator = {
         {
             type: "add",
             path: "templates/{{properCase name}}/component.js",
-            templateFile: "./component.tpl"
+            templateFile: __dirname + "/component.tpl"
         }
     ] // array of actions
 };
