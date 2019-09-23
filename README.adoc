@@ -24,6 +24,7 @@ At this moment, ARMTemplateGenerator supports:
 * Azure App Service
 * Azure Data Lake Store
 * Azure Key Vault
+* Azure Kubernetes Services
 * Azure SQL
 * Recovery Services Vault
 * Storage Account
