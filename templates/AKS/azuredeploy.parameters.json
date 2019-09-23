@@ -1,0 +1,108 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "aksName": {
+            "value": "{{name}}"
+        },
+        "dnsPrefix": {
+            "value": ""
+        },
+        "osDiskSizeGB": {
+            "value": 0
+        },
+        "agentCount": {
+            "value": 3
+        },
+        "agentVMSize": {
+            "value": "Standard_DS2_v2"
+        },
+        "maxPods": {
+            "value": 30
+        },
+        "linuxAdminUsername": {
+            "value": "azureuser"
+        },
+        "sshRSAPublicKey": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "servicePrincipalObjectId": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "servicePrincipalClientId": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "servicePrincipalClientSecret": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "osType": {
+            "value": "Linux"
+        },
+        "kubernetesVersion": {
+            "value": "1.14.6"
+        },
+        "enableHttpApplicationRouting": {
+            "value": false
+        },
+        "enableRBAC": {
+            "value": true
+        },
+        "vnetName": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "vnetResourceGroup": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "subnetName": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "networkPlugin": {
+            "value": "azure"
+        },
+        "serviceCidr": {
+            "value": "10.0.0.0/16"
+        },
+        "dnsServiceIP": {
+            "value": "10.0.0.10"
+        },
+        "dockerBridgeCidr": {
+            "value": "172.17.0.1/16"
+        },
+        "AADClientAppID": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "AADServerAppID": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "AADServerAppSecret": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "AADTenantID": {
+            "value": "[subscription().tenantId]"
+        },
+        "workspaceName": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "workspaceResourceGroup": {
+            "value": "[resourceGroup().name]"
+        },
+        "acrName": {
+            "value": "[concat('acr', uniqueString(resourceGroup().id))]"
+        },
+        "acrAdminUserEnabled": {
+            "value": false
+        },
+        "acrSku": {
+            "value": "Premium"
+        },
+        "acrReplicaLocation": {
+            "value": "## TO BE DEFINED ##"
+        },
+        "location": {
+            "value": "[resourceGroup().location]"
+        },
+        "tagValues": {
+            "value": {}
+        }
+    }
+}
