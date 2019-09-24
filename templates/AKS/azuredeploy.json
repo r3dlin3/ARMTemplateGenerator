@@ -47,6 +47,7 @@
                 "description": "Maximum number of pods that can run on a node."
             }
         },
+        {{#if createCredentials}}
         "linuxAdminUsername": {
             "type": "string",
             "defaultValue": "azureuser",
@@ -60,12 +61,15 @@
                 "description": "Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example 'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm'"
             }
         },
+        {{/if}}
+        {{#if existingVNET}}
         "servicePrincipalObjectId": {
             "type": "string",
             "metadata": {
                 "description": "Oject ID against which the Network Contributor roles will be assigned on the subnet"
             }
         },
+        {{/if}}
         "servicePrincipalClientId": {
             "type": "string",
             "metadata": {
@@ -116,6 +120,7 @@
                 "description": "boolean flag to turn on and off of RBAC"
             }
         },
+        {{#if existingVNET}}
         "vnetName": {
             "type": "string",
             "metadata": {
@@ -166,6 +171,8 @@
                 "description": "A CIDR notation IP for Docker bridge."
             }
         },
+        {{/if}}
+        {{#if aadSupport}}
         "AADClientAppID": {
             "type": "string",
             "metadata": {
@@ -191,12 +198,15 @@
                 "description": "The Azure AD Tenant where the cluster will reside"
             }
         },
+        {{/if}}
+        {{#if enableLogging}}
         "workspaceName": {
             "type": "string",
             "metadata": {
                 "description": "Name of the Log Analytics workspace"
             }
         },
+        {{#unless createWorkspace}}
         "workspaceResourceGroup": {
             "type": "string",
             "defaultValue": "[resourceGroup().name]",
@@ -204,6 +214,17 @@
                 "description": "Name of the resource group of the existing Log Analytics workspace"
             }
         },
+        {{/unless}}
+        {{/if}}
+        {{#if deployAcr}}
+        {{#unless existingVNET}}
+        "servicePrincipalObjectId": {
+            "type": "string",
+            "metadata": {
+                "description": "Oject ID against which the Network Contributor roles will be assigned on the subnet"
+            }
+        },
+        {{/unless}}
         "acrName": {
             "type": "string",
             "defaultValue": "[concat('acr', uniqueString(resourceGroup().id))]",
@@ -225,20 +246,28 @@
             "metadata": {
                 "description": "Tier of your Azure Container Registry.  Geo replicatoin requires Premium SKU."
             },
-            "defaultValue": "Basic",
+            {{#if enableGeoReplication}}
             "defaultValue": "Premium",
+            {{else}}
+            "defaultValue": "Basic",
+            {{/if}}
             "allowedValues": [
+                {{#unless enableGeoReplication}}
                 "Basic",
                 "Standard",
+                {{/unless}}
                 "Premium"
             ]
         },
+        {{#if enableGeoReplication}}
         "acrReplicaLocation": {
             "type": "string",
             "metadata": {
                 "description": "Location for ACR replica"
             }
         },
+        {{/if}}
+        {{/if}}
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]",
@@ -252,11 +281,16 @@
         }
     },
     "variables": {
+        {{#if existingVNET}}
         "vnetSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('subnetName'))]",
+        {{/if}}
+        {{#if enableLogging}}{{#unless createWorkspace}}
         "workspaceResourceId": "[resourceId(parameters('workspaceResourceGroup'), 'Microsoft.OperationalInsights/workspaces',parameters('workspaceName'))]",
+        {{/unless}}{{/if}}
         "dnsPrefix": "[coalesce(parameters('dnsPrefix'),parameters('aksName'))]"
     },
     "resources": [
+        {{#if createWorkspace}}
         {
             "type": "Microsoft.OperationalInsights/workspaces",
             "name": "[parameters('workspaceName')]",
@@ -268,6 +302,7 @@
                 }
             }
         },
+        {{/if}}
         {
             "type": "Microsoft.ContainerService/managedClusters",
             "name": "[parameters('aksName')]",
@@ -275,26 +310,38 @@
             "location": "[parameters('location')]",
             "tags": {},
             "dependsOn": [
-                "[parameters('workspaceName')]",
-                "[concat('Microsoft.Resources/deployments/', 'ClusterSubnetRoleAssignmentDeployment')]"
+                {{#if enableLogging}}{{#if createWorkspace}}
+                "[parameters('workspaceName')]"{{#if existingVNET}},{{/if}}
+                {{/if}}{{/if}}
+                {{#if existingVNET}}
+                "ClusterSubnetRoleAssignmentDeployment"
+                {{/if}}
             ],
             "properties": {
                 "kubernetesVersion": "[parameters('kubernetesVersion')]",
                 "enableRBAC": "[parameters('enableRBAC')]",
                 "dnsPrefix": "[variables('dnsPrefix')]",
+                {{#if aadSupport}}
                 "aadProfile": {
                     "clientAppID": "[parameters('AADClientAppID')]",
                     "serverAppID": "[parameters('AADServerAppID')]",
                     "tenantID": "[parameters('AADTenantID')]",
                     "serverAppSecret": "[parameters('AADServerAppSecret')]"
                 },
+                {{/if}}
                 "addonProfiles": {
+                    {{#if enableLogging}}
                     "omsagent": {
                         "enabled": true,
                         "config": {
+                            {{#if createWorkspace}}
+                            "logAnalyticsWorkspaceResourceID": "[resourceId('Microsoft.OperationalInsights/workspaces',parameters('workspaceName'))]",
+                            {{else}}
                             "logAnalyticsWorkspaceResourceID": "[variables('workspaceResourceId')]"
+                            {{/if}}
                         }
                     },
+                    {{/if}}
                     "httpApplicationRouting": {
                         "enabled": "[parameters('enableHttpApplicationRouting')]"
                     }
@@ -307,10 +354,13 @@
                         "vmSize": "[parameters('agentVMSize')]",
                         "osType": "[parameters('osType')]",
                         "storageProfile": "ManagedDisks",
+                        {{#if existingVNET}}
                         "vnetSubnetID": "[variables('vnetSubnetID')]",
+                        {{/if}}
                         "maxPods": "[parameters('maxPods')]"
                     }
                 ],
+                {{#if createCredentials}}
                 "linuxProfile": {
                     "adminUsername": "[parameters('linuxAdminUsername')]",
                     "ssh": {
@@ -321,18 +371,21 @@
                         ]
                     }
                 },
-                "servicePrincipalProfile": {
-                    "clientId": "[parameters('servicePrincipalClientId')]",
-                    "secret": "[parameters('servicePrincipalClientSecret')]"
-                },
+                {{/if}}
+                {{#if existingVNET}}
                 "networkProfile": {
                     "networkPlugin": "[parameters('networkPlugin')]",
                     "serviceCidr": "[parameters('serviceCidr')]",
                     "dnsServiceIP": "[parameters('dnsServiceIP')]",
                     "dockerBridgeCidr": "[parameters('dockerBridgeCidr')]"
+                },
+                {{/if}}
+                "servicePrincipalProfile": {
+                    "clientId": "[parameters('servicePrincipalClientId')]",
+                    "secret": "[parameters('servicePrincipalClientSecret')]"
                 }
             }
-        },
+        }{{#if existingVNET}},
         {
             "type": "Microsoft.Resources/deployments",
             "name": "ClusterSubnetRoleAssignmentDeployment",
@@ -360,7 +413,7 @@
                     ]
                 }
             }
-        },
+        }{{/if}}{{#if deployAcr}},
         {
             "name": "[parameters('acrName')]",
             "type": "Microsoft.ContainerRegistry/registries",
@@ -376,6 +429,18 @@
             }
         },
         {
+            "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
+            "apiVersion": "2018-09-01-preview",
+            "dependsOn": [
+                "[parameters('acrName')]"
+            ],
+            "name": "[concat(parameters('acrName'), '/Microsoft.Authorization/', guid(resourceGroup().id, parameters('acrName'), parameters('aksName')))]",
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+                "principalId": "[parameters('servicePrincipalObjectId')]"
+            }
+        }{{#if enableGeoReplication}},
+        {
             "name": "[concat(parameters('acrName'), '/', parameters('acrReplicaLocation'))]",
             "type": "Microsoft.ContainerRegistry/registries/replications",
             "apiVersion": "2017-10-01",
@@ -385,12 +450,16 @@
                 "[parameters('acrName')]"
             ]
         }
+        {{/if}}
+        {{/if}}
     ],
     "outputs": {
+        {{#if deployAcr}}
         "acrLoginServer": {
             "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries',parameters('acrName')),'2017-10-01').loginServer]",
             "type": "string"
         },
+        {{/if}}
         "controlPlaneFQDN": {
             "type": "string",
             "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('aksName'))).fqdn]"

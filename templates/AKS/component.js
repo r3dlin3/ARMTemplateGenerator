@@ -26,8 +26,14 @@ module.exports.generator = {
         },
         {
             type: 'confirm',
+            name: 'aadSupport',
+            default: false,
+            message: 'Do you want to integrate Azure Active Directory with Azure Kubernetes Service?'
+        },
+        {
+            type: 'confirm',
             name: 'enableLogging',
-            default: true,
+            default: false,
             message: 'Do you want to activate logging?'
         },
         {

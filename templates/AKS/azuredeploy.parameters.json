@@ -20,20 +20,29 @@
         "maxPods": {
             "value": 30
         },
+        {{#if createCredentials}}
         "linuxAdminUsername": {
             "value": "azureuser"
         },
         "sshRSAPublicKey": {
             "value": "## TO BE DEFINED ##"
         },
+        {{/if}}
+        {{#if existingVNET}}
         "servicePrincipalObjectId": {
             "value": "## TO BE DEFINED ##"
         },
+        {{/if}}
         "servicePrincipalClientId": {
             "value": "## TO BE DEFINED ##"
         },
         "servicePrincipalClientSecret": {
-            "value": "## TO BE DEFINED ##"
+            "reference": {
+                "keyVault": {
+                    "id": "<specify Resource ID of the Key Vault you are using>"
+                },
+                "secretName": "<specify name of the secret in the Key Vault to get the service principal password from>"
+            }
         },
         "osType": {
             "value": "Linux"
@@ -47,6 +56,7 @@
         "enableRBAC": {
             "value": true
         },
+        {{#if existingVNET}}
         "vnetName": {
             "value": "## TO BE DEFINED ##"
         },
@@ -68,6 +78,8 @@
         "dockerBridgeCidr": {
             "value": "172.17.0.1/16"
         },
+        {{/if}}
+        {{#if aadSupport}}
         "AADClientAppID": {
             "value": "## TO BE DEFINED ##"
         },
@@ -80,27 +92,40 @@
         "AADTenantID": {
             "value": "[subscription().tenantId]"
         },
+        {{/if}}
+        {{#if enableLogging}}
         "workspaceName": {
             "value": "## TO BE DEFINED ##"
         },
+        {{#unless createWorkspace}}
         "workspaceResourceGroup": {
-            "value": "[resourceGroup().name]"
+            "value": "## TO BE DEFINED ##"
         },
+        {{/unless}}
+        {{/if}}
+        {{#if deployAcr}}
+        {{#unless existingVNET}}
+        "servicePrincipalObjectId": {
+            "value": "## TO BE DEFINED ##"
+        },
+        {{/unless}}
         "acrName": {
-            "value": "[concat('acr', uniqueString(resourceGroup().id))]"
+            "value": "## TO BE DEFINED ##"
         },
         "acrAdminUserEnabled": {
             "value": false
         },
+        {{#unless enableGeoReplication}}
         "acrSku": {
-            "value": "Premium"
+            "value": "Basic"
         },
+        {{/unless}}
+        {{#if enableGeoReplication}}
         "acrReplicaLocation": {
             "value": "## TO BE DEFINED ##"
         },
-        "location": {
-            "value": "[resourceGroup().location]"
-        },
+        {{/if}}
+        {{/if}}
         "tagValues": {
             "value": {}
         }
