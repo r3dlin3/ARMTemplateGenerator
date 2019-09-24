@@ -47,9 +47,18 @@ module.exports.generator = {
         },
         {
             type: 'confirm',
-            name: 'deployAcr',
+            name: 'useAcr',
             default: false,
-            message: 'Do you want to create an Azure Container Registry?'
+            message: 'Do you want to use an Azure Container Registry?'
+        },
+        {
+            type: 'confirm',
+            name: 'createAcr',
+            default: true,
+            message: 'Do you want to create an Azure Container Registry?',
+            when: function (answers) {
+                return answers.useAcr;
+            },
         },
         {
             type: 'confirm',
@@ -57,7 +66,7 @@ module.exports.generator = {
             default: false,
             message: 'Do you want to enable Geo Replication on ACR?',
             when: function (answers) {
-                return answers.deployAcr;
+                return answers.useAcr && answers.createAcr;
             },
         },
     ], // array of inquirer prompts

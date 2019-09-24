@@ -103,7 +103,7 @@
         },
         {{/unless}}
         {{/if}}
-        {{#if deployAcr}}
+        {{#if useAcr}}
         {{#unless existingVNET}}
         "servicePrincipalObjectId": {
             "value": "## TO BE DEFINED ##"
@@ -112,6 +112,7 @@
         "acrName": {
             "value": "## TO BE DEFINED ##"
         },
+        {{#if createAcr}}
         "acrAdminUserEnabled": {
             "value": false
         },
@@ -124,8 +125,11 @@
         "acrReplicaLocation": {
             "value": "## TO BE DEFINED ##"
         },
-        {{/if}}
-        {{/if}}
+        {{/if}}{{else}}
+        "acrResourceGroup": {
+            "value": "## TO BE DEFINED ##"
+        },
+        {{/if}}{{/if}}{{!-- End of useAcr--}}
         "tagValues": {
             "value": {}
         }
