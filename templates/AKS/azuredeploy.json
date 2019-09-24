@@ -295,7 +295,7 @@
         {{#if enableLogging}}{{#unless createWorkspace}}
         "workspaceResourceId": "[resourceId(parameters('workspaceResourceGroup'), 'Microsoft.OperationalInsights/workspaces',parameters('workspaceName'))]",
         {{/unless}}{{/if}}
-        "dnsPrefix": "[coalesce(parameters('dnsPrefix'),parameters('aksName'))]"
+        "dnsPrefix": "[if(empty(parameters('dnsPrefix')),parameters('aksName'),parameters('dnsPrefix'))]"
     },
     "resources": [
         {{#if createWorkspace}}
@@ -343,7 +343,7 @@
                         "enabled": true,
                         "config": {
                             {{#if createWorkspace}}
-                            "logAnalyticsWorkspaceResourceID": "[resourceId('Microsoft.OperationalInsights/workspaces',parameters('workspaceName'))]",
+                            "logAnalyticsWorkspaceResourceID": "[resourceId('Microsoft.OperationalInsights/workspaces',parameters('workspaceName'))]"
                             {{else}}
                             "logAnalyticsWorkspaceResourceID": "[variables('workspaceResourceId')]"
                             {{/if}}
