@@ -18,6 +18,20 @@ module.exports.generator = {
             message: 'Do you want to use an existing App Service Plan?'
         },
         {
+            type: 'list',
+            name: 'kind',
+            choices: [{
+                name: "Windows", value: "app"
+            }, {
+                name: "Linux", value: "linux"
+            }
+            ],
+            message: 'What kind of App Service Plan do you want?',
+            when: function (answers) {
+                return !answers.existingASP;
+            },
+        },
+        {
             type: 'confirm',
             name: 'createSlot',
             default: false,

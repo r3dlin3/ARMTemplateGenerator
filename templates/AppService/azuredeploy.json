@@ -158,6 +158,7 @@
         {
             "apiVersion": "2015-08-01",
             "name": "[parameters('appServicePlanName')]",
+            "kind": "{{kind}}",
             "type": "Microsoft.Web/serverfarms",
             "location": "[parameters('location')]",
             "properties": {
@@ -342,9 +343,9 @@
                         "AppInsights:InstrumentationKey": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName'))).InstrumentationKey]",
                         {{/if}}
                         {{#if createCache}}
-                        "CacheConnection": "[concat(variables('cacheName'),'.redis.cache.windows.net,abortConnect=false,ssl=true,password=', listKeys(resourceId('Microsoft.Cache/Redis', parameters('cacheName')), '2015-08-01').primaryKey)]"
+                        "CacheConnection": "[concat(variables('cacheName'),'.redis.cache.windows.net,abortConnect=false,ssl=true,password=', listKeys(resourceId('Microsoft.Cache/Redis', parameters('cacheName')), '2015-08-01').primaryKey)]",
                         {{/if}}
-
+                        "foo": "bar"
                     }
                 }
             ]
