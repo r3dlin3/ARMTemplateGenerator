@@ -1,0 +1,208 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "functionName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the AzureFunction"
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Storage Account"
+            }
+        },
+        "appInsightsName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Application Insights."
+            }
+        },
+        "hostingPlanName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the App Service Plan."
+            }
+        },
+        "skuCode": {
+            "type": "string",
+            "allowedValues": [
+                {{#unless isDedicatedPlan}}
+                "Y1",
+                "EP1"{{/unless}}{{#if isDedicatedPlan}}
+                "F1",
+                "D1",
+                "B1",
+                "B2",
+                "B3",
+                "S1",
+                "S2",
+                "S3",
+                "P1v2",
+                "P2v2",
+                "P3v2"{{/if}}
+            ],
+            "metadata": {
+                "description": "SKU for the App Service Plan."
+            }
+        },
+        "numberOfWorkers": {
+            "type": "string",
+            "defaultValue": "1"
+        },{{#if isDedicatedPlan}}
+        "alwaysOn": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "true if Always On is enabled; otherwise, false."
+            }
+        },{{/if}}
+        {{#if isLinux}}
+        "linuxFxVersion": {
+            "type": "string",
+            "allowedValues": [
+                "Python|3.8",
+                "Python|3.7",
+                "Python|3.6",
+                "Java|8",
+                ""
+            ],
+            "metadata": {
+                "description": "Linux App Framework and version"
+            }
+        },{{/if}}
+        "runtime": {
+            "type": "string",
+            "allowedValues": [
+                "node",
+                "dotnet",
+                "java",
+                {{#if isLinux}}
+                "powershell"
+                {{else}}
+                "python"
+                {{/if}}
+            ],
+            "metadata": {
+                "description": "The language worker runtime to load in the function app."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "The region to deploy the resources into"
+            }
+        },
+        "tagValues": {
+            "type": "object",
+            "defaultValue": {
+            }
+        }
+    },
+    "variables": {
+         "storageAccountName":"[toLower(parameters('storageAccountName'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-05-01",
+            "name": "[parameters('appInsightsName')]",
+            "type": "microsoft.insights/components",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tagValues')]",
+            "properties": {
+                "ApplicationId": "[parameters('functionName')]",
+                "Request_Source": "IbizaWebAppExtensionCreate"
+            }
+        },
+        {
+            "apiVersion": "2019-06-01",
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "tags": "[parameters('tagValues')]",
+            "properties": {
+                "supportsHttpsTrafficOnly": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[parameters('hostingPlanName')]",
+            "location": "[parameters('location')]",
+            {{#if isLinux}}
+            "kind": "linux",
+            {{/if}}
+            "sku": {
+                "name": "[parameters('skuCode')]"
+            },
+            "properties": {
+                "name": "[parameters('hostingPlanName')]",
+                "numberOfWorkers": "[parameters('numberOfWorkers')]"
+            }
+        },
+        {
+            "apiVersion": "2018-11-01",
+            "name": "[parameters('functionName')]",
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tagValues')]",
+            "dependsOn": [
+                "[concat('Microsoft.Insights/components/', parameters('appInsightsName'))]",
+                "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+            ],
+            {{#if createManagedServiceIdentity}}
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            {{/if}}
+            "properties": {
+                "name": "[parameters('functionName')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~3"
+                        },
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "[parameters('runtime')]"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('microsoft.insights/components', parameters('appInsightsName')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                            "value": "[reference(resourceId('microsoft.insights/components', parameters('appInsightsName')), '2015-05-01').ConnectionString]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        }{{#unless isDedicatedPlan}},
+                        {
+                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTSHARE",
+                            "value": "[toLower(concat(parameters('functionName'), substring(uniqueString(resourceGroup().id, parameters('functionName')),0, 4)))]"
+                        }{{/unless}}
+                    ]{{#if isLinux}},
+                    "linuxFxVersion": "[parameters('linuxFxVersion')]"{{/if}}{{#if isDedicatedPlan}},
+                    "alwaysOn": "[parameters('alwaysOn')]"{{/if}}
+                },
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

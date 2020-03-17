@@ -1,0 +1,38 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "functionName": {
+      "value": "{{name}}"
+    },
+    "storageAccountName": {
+      "value": ""
+    },
+    "appInsightsName": {
+      "value": ""
+    },
+    "hostingPlanName": {
+      "value": ""
+    },
+    "skuCode": {
+      "value": {{#unless isDedicatedPlan}}"Y1"{{/unless}}{{#if isDedicatedPlan}}"S1"{{/if}}
+    },
+    "numberOfWorkers": {
+      "value": "1"
+    },
+    {{#if isDedicatedPlan}}
+    "alwaysOn": {
+      "value": true
+    },{{/if}}
+    {{#if isLinux}}
+    "linuxFxVersion": {
+      "value": ""
+    },{{/if}}
+    "runtime": {
+      "value": "dotnet"
+    },
+    "tagValues": {
+      "value": {}
+    }
+  }
+}
