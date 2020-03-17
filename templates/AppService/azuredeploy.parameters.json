@@ -22,7 +22,7 @@
     },
     {{/if}}
     {{#if createAppInsights}}
-    "AppInsightsName": {
+    "appInsightsName": {
       "value": ""
     },
     {{/if}}

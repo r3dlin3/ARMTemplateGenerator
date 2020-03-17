@@ -67,7 +67,7 @@
           },
         {{/if}}
         {{#if createAppInsights}}
-        "AppInsightsName": {
+        "appInsightsName": {
             "type": "string",
             "metadata": {
                  "description": "Name of the Application Insights."
