@@ -204,5 +204,15 @@
         }
     ],
     "outputs": {
+        {{#if createManagedServiceIdentity}}
+        "objectId": {
+           "type": "string",
+           "value": "[reference(concat(resourceId('Microsoft.Web/sites', parameters('functionName')), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2015-08-31-PREVIEW').principalId]"
+        },
+        "tenantId": {
+            "type": "string",
+           "value": "[reference(concat(resourceId('Microsoft.Web/sites', parameters('functionName')), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2015-08-31-PREVIEW').tenantId]"
+        }
+        {{/if}}
     }
 }
