@@ -48,6 +48,19 @@
     Path to the template
 .PARAMETER ParamFilePath
     Path to the parameters
+.PARAMETER storageResourceGroupName
+    Name of the resource group of the storage account
+     (creates it if it does not exists)
+.PARAMETER StorageAccountName
+    Name of the storage account to use (creates it if it does not exists)
+.PARAMETER storageContainer
+    Name of the container in the storage account to use for upload files
+     (creates it if it does not exists)
+    NOTE: the scripts uploads inside a folder inside this container
+.PARAMETER location
+    Location used for the creation of the resources if they 
+    do not exist already: resource groups, storage account
+.PARAMETER deploymentName
 
 #>
 [CmdletBinding()]
