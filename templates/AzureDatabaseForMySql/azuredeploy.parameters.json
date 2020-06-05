@@ -1,0 +1,59 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "mysqlServerName": {
+      "value": "{{lowerCase name}}"
+    },
+    "administratorLogin": {
+        "value": ""
+    },
+    "administratorLoginPassword": {
+        "value": ""
+    },
+    {{#if enableFirewall}}
+    "firewallRules": {
+        "value": [{
+            "name":"",
+            "startIpAddress":"",
+            "endIpAddress":""
+            }]
+    },
+    {{/if}}
+    "allowAzureIps": {
+        "value": "Enabled"
+    },
+    {{#if enableServiceEndpoint}}
+    "vnetName": {
+        "value": ""
+    },
+    "subnetName": {
+        "value": ""
+    },
+    "vnetResourceGroup": {
+        "value": ""
+    },
+    {{/if}}
+    "databaseForMySqlName": {
+      "value": "{{lowerCase name}}-db"
+    },
+    "databaseSizeMB": {
+      "value": 5120
+    },
+    "databaseSkuName": {
+      "value": "GP_Gen5_2"
+    },
+    "backupRetentionDays": {
+      "value": 7
+    },
+    "sslEnforcement": {
+      "value": "Disabled"
+    },
+    "mysqlVersion": {
+      "value": "8.0"
+    },
+    "tagValues": {
+      "value": {}
+    }
+  }
+}

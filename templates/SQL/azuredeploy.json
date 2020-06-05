@@ -318,10 +318,10 @@
     "databaseServerFQDN" : {
       "type" : "string",
       "value": "[reference(variables('sqlServerName')).fullyQualifiedDomainName]"
-    },
+    }{{#if createDB}},
     "databaseName" : {
         "type" : "string",
         "value": "[parameters('sqlDatabaseName')]"
-    }
+    }{{/if}}
   }
 }
