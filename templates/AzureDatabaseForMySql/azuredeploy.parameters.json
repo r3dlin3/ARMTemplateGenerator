@@ -8,7 +8,7 @@
     "administratorLogin": {
         "value": ""
     },
-    "administratorLoginPassword": {
+    "administratorPassword": {
         "value": ""
     },
     {{#if enableFirewall}}
