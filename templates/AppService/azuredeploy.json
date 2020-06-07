@@ -350,5 +350,15 @@
                 }
             ]
         }       
-    ]
+    ],
+    "outputs": {
+        "defaultHostName": {
+          "type": "string",
+          "value": "[reference(parameters('siteName'), '2018-02-01').defaultHostName]"
+        },
+        "possibleOutboundIps": {
+            "type": "array",
+            "value": "[split(reference(parameters('siteName'), '2018-02-01').possibleOutboundIpAddresses, ',')]"
+        }
+    }
 }
