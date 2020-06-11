@@ -287,6 +287,11 @@
                 "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
                 {{/unless}}
             ],
+            {{#if enableManagedIdentity}}
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            {{/if}}
             "properties": {
                 "name": "[parameters('siteName')]",
                 "serverFarmId": "[parameters('appServicePlanName')]",
@@ -294,25 +299,25 @@
             },
             "resources": [
                 {
-                    "apiVersion": "2015-08-01",
-                    "name": "web",
-                    "type": "config",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
-                    ],
-                    "properties": {
-                        "use32BitWorkerProcess": false,
-                        "phpVersion": "off",
-                        "netFrameworkVersion": "v4.7",
-                        "webSocketsEnabled": false,
-                        "requestTracingEnabled": true,
-                        "detailedErrorLoggingEnabled": true,
-                        "httpLoggingEnabled": true,
-                        "logsDirectorySizeLimit": 40,
-                        "remoteDebuggingEnabled": false,
-                        "ftpsState": "Disabled",
-                        "defaultDocuments": []
-                    }
+                  "apiVersion": "2015-08-01",
+                  "name": "web",
+                  "type": "config",
+                  "dependsOn": [
+                      "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+                  ],
+                  "properties": {
+                      "use32BitWorkerProcess": false,
+                      "phpVersion": "off",
+                      "netFrameworkVersion": "v4.7",
+                      "webSocketsEnabled": false,
+                      "requestTracingEnabled": true,
+                      "detailedErrorLoggingEnabled": true,
+                      "httpLoggingEnabled": true,
+                      "logsDirectorySizeLimit": 40,
+                      "remoteDebuggingEnabled": false,
+                      "ftpsState": "Disabled",
+                      "defaultDocuments": []
+                  }
                 },
                 {{#if createAppInsights}}
                 {
@@ -360,6 +365,16 @@
         "possibleOutboundIps": {
             "type": "array",
             "value": "[split(reference(parameters('siteName'), '2018-02-01').possibleOutboundIpAddresses, ',')]"
-        }
+        }{{#if enableManagedIdentity}},
+        "apiObjectId": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Web/sites', parameters('siteName')), '2019-08-01', 'full').identity.principalId]"
+
+        },
+        "apiTenantId": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Web/sites', parameters('siteName')), '2019-08-01', 'full').identity.tenantId]"
+        },
+        {{/if}}
     }
 }

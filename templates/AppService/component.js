@@ -54,6 +54,12 @@ module.exports.generator = {
             name: 'createCache',
             default: false,
             message: 'Do you want to create a Redis cache?',
+        },
+        {
+            type: 'confirm',
+            name: 'enableManagedIdentity',
+            default: false,
+            message: 'Do you want a system-assigned managed identity on the App Service?',
         }
     ], // array of inquirer prompts
     actions: actionTypes.DEFAULT_ACTIONS(__dirname)
