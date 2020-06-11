@@ -148,7 +148,8 @@
         }
     },
     "variables": {
-        {{#if createAppInsights}}
+      "apiVersion": "2019-08-01",
+      "use32BitWorkerProcess": "[or(equals(parameters('skuName'),'F1'), equals(parameters('skuName'),'D1'))]"{{#if createAppInsights}},
         "AppInsightHiddenLink" : {
             "[concat('hidden-link:', resourceId('Microsoft.Web/sites', parameters('siteName')))]": "Resource"
         }
@@ -157,7 +158,7 @@
     "resources": [
         {{#unless existingASP}}
         {
-            "apiVersion": "2015-08-01",
+            "apiVersion": "[variables('apiVersion')]",
             "name": "[parameters('appServicePlanName')]",
             "kind": "{{kind}}",
             "type": "Microsoft.Web/serverfarms",
@@ -278,7 +279,7 @@
           },
           {{/if}}
           {
-            "apiVersion": "2015-08-01",
+            "apiVersion": "[variables('apiVersion')]",
             "name": "[parameters('siteName')]",
             "type": "Microsoft.Web/sites",
             "location": "[parameters('location')]",
@@ -295,33 +296,25 @@
             "properties": {
                 "name": "[parameters('siteName')]",
                 "serverFarmId": "[parameters('appServicePlanName')]",
-                "httpsOnly": true
+                "httpsOnly": true,
+                "siteConfig": {
+                  "use32BitWorkerProcess": "[variables('use32BitWorkerProcess')]",
+                  "phpVersion": "off",
+                  "netFrameworkVersion": "v4.7",
+                  "webSocketsEnabled": false,
+                  "requestTracingEnabled": true,
+                  "detailedErrorLoggingEnabled": true,
+                  "httpLoggingEnabled": true,
+                  "logsDirectorySizeLimit": 40,
+                  "remoteDebuggingEnabled": false,
+                  "ftpsState": "Disabled",
+                  "defaultDocuments": []
+                }
             },
             "resources": [
-                {
-                  "apiVersion": "2015-08-01",
-                  "name": "web",
-                  "type": "config",
-                  "dependsOn": [
-                      "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
-                  ],
-                  "properties": {
-                      "use32BitWorkerProcess": false,
-                      "phpVersion": "off",
-                      "netFrameworkVersion": "v4.7",
-                      "webSocketsEnabled": false,
-                      "requestTracingEnabled": true,
-                      "detailedErrorLoggingEnabled": true,
-                      "httpLoggingEnabled": true,
-                      "logsDirectorySizeLimit": 40,
-                      "remoteDebuggingEnabled": false,
-                      "ftpsState": "Disabled",
-                      "defaultDocuments": []
-                  }
-                },
                 {{#if createAppInsights}}
                 {
-                    "apiVersion": "2015-08-01",
+                    "apiVersion": "[variables('apiVersion')]",
                     "name": "[concat(parameters('siteName'),'/Microsoft.ApplicationInsights.AzureWebSites')]",
                     "type": "Microsoft.Web/sites/siteextensions",
                     "location": "[parameters('location')]",
