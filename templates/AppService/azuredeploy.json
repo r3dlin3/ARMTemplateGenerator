@@ -90,7 +90,8 @@
          "CDNSku": {
             "type": "string",
             "allowedValues": [
-                "Standard_Verizon", "Premium_Verizon", "Custom_Verizon", "Standard_Akamai", "Standard_ChinaCdn"],
+                "Standard_Verizon", "Premium_Verizon", "Custom_Verizon", "Standard_Akamai", "Standard_ChinaCdn", "Standard_Microsoft", "Premium_ChinaCdn"
+            ],
             "metadata": {
                  "description": "Name of the pricing tier."
              }
