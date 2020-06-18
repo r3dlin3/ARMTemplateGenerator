@@ -64,7 +64,7 @@
     },
     {{/if}}
     {{#if enableAudit}}
-    "storageName": {
+    "auditStorageAccountName": {
       "type": "string",
       "minLength": 3,
       "maxLength": 24,
@@ -172,6 +172,48 @@
       }
     },
     {{/if}}
+    "sqlBackupRetentionDays": {
+      "type": "int",
+      "defaultValue": 7,
+      "metadata": {
+        "description": "The backup retention period in days. This is how many days Point-in-Time Restore will be supported."
+      }
+    },
+    {{#if enableLTR}}
+    "sqlBackupLTRpolicy": {
+      "type": "object",
+      "defaultValue": {
+        "weeklyRetention": "P6W",
+        "monthlyRetention": null,
+        "yearlyRetention": null,
+        "weekOfYear": null
+      },
+      "metadata": {
+        "description": "The retention policy for weekly, monthly and yearly backup."
+      }
+    },
+    {{/if}}
+    {{#if enableAAD}}
+    "aadAdminLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "UPN of Azure AD Admin"
+      }
+    },
+    "aadAdminObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "objectId of Azure AD Admin"
+      }
+    },
+    "tenantId": {
+      "type": "string",
+      "defaultValue": "[subscription().tenantId]",
+      "metadata": {
+        "description": "Tenant Id of the subscription."
+      }
+    },
+    {{/if}}
     "tags": {
       "type": "object",
       "defaultValue": {}
@@ -185,7 +227,7 @@
     }
   },
   "variables": {
-    "SqlApiVersion":"2015-05-01-preview"{{#if enableServiceEndpoint}},
+    "sqlApiVersion": "2015-05-01-preview"{{#if enableServiceEndpoint}},
     "vnetID": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]"
     {{/if}}
   },
@@ -198,7 +240,7 @@
         "name": "[parameters('storageAccountType')]"
       },
       "kind": "StorageV2",
-      "name": "[parameters('storageName')]",
+      "name": "[parameters('auditStorageAccountName')]",
       "apiVersion": "2018-02-01",
       "location": "[parameters('location')]",
       "tags": "[parameters('tags')]"
@@ -211,24 +253,23 @@
       "location": "[parameters('location')]",
       "properties": {
         "auditingState": "Enabled",
-        "storageAccountName" : "[parameters('storageName')]",
+        "storageAccountName" : "[parameters('auditStorageAccountName')]",
         "storageAccountResourceGroupName": "[resourceGroup().name]",
-        "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2015-05-01-preview').key1]",
+        "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('auditStorageAccountName')), '2015-05-01-preview').key1]",
         "storageAccountSubscriptionId": "[subscription().id]",
         "retentionDays": "[parameters('auditRetentionDays')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"{{#unless existingStorage}},
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageName'))]"
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('auditStorageAccountName'))]"
         {{/unless}}
       ]
-    },
-    {{/if}}
+    },{{/if}}
     {{#unless existingServer}}
     {
       "name": "[parameters('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
-      "apiVersion": "[variables('SqlApiVersion')]",
+      "apiVersion": "[variables('sqlApiVersion')]",
       "location": "[parameters('location')]",
       "tags": "[parameters('tags')]",
       "properties": {
@@ -237,6 +278,21 @@
         "version": "12.0"
       }
     },
+    {{#if enableAAD}}
+    {
+      "name": "[concat(parameters('sqlServerName'), '/activeDirectory')]",
+      "type": "Microsoft.Sql/servers/administrators",
+      "apiVersion": "2014-04-01",
+      "dependsOn": [
+        "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'))]"
+      ],
+      "properties": {
+        "administratorType": "ActiveDirectory",
+        "login": "[parameters('aadAdminLogin')]",
+        "sid": "[parameters('aadAdminObjectId')]",
+        "tenantId": "[parameters('tenantId')]"
+      }
+    },{{/if}}
     {{/unless}}
     {{#if createDB}}
     {
@@ -256,9 +312,31 @@
         "maxSizeBytes": "[parameters('sqlDatabaseMaxSizeBytes')]",
         "requestedServiceObjectiveName": "[parameters('sqldatabaseRequestedServiceObjectiveName')]"
       }
-    },{{/if}}{{#if enableFirewall}}
+    },
     {
-      "apiVersion": "[variables('SqlApiVersion')]",
+      "name": "[concat(parameters('sqlServerName'),'/',parameters('sqlDatabaseName'),'/default')]",
+      "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
+      "apiVersion": "2017-10-01-preview",
+      "dependsOn": [
+        "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/', parameters('sqlDatabaseName'))]"
+      ],
+      "properties": {
+        "retentionDays": "[parameters('sqlBackupRetentionDays')]"
+      }
+    },{{#if enableLTR}}
+    {
+      "name": "[concat(parameters('sqlServerName'),'/',parameters('sqlDatabaseName'),'/default')]",
+      "type": "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies",
+      "dependsOn": [
+        "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/', parameters('sqlDatabaseName'))]"
+      ],
+      "apiVersion": "2017-03-01-preview",
+      "properties": "[parameters('sqlBackupLTRpolicy')]"
+    },
+    {{/if}}
+    {{/if}}{{#if enableFirewall}}
+    {
+      "apiVersion": "[variables('sqlApiVersion')]",
       "name": "[concat(parameters('sqlServerName'), '/AllowAllWindowsAzureIps')]",
       "condition": "[equals(parameters('allowAzureIps'),'Enabled')]",
       "type": "Microsoft.Sql/servers/firewallRules",
@@ -271,7 +349,7 @@
       ]
     },
     {
-      "apiVersion": "[variables('SqlApiVersion')]",
+      "apiVersion": "[variables('sqlApiVersion')]",
       "name": "[concat(parameters('sqlServerName'), '/', parameters('firewallRules')[copyIndex()].firewallRulesName)]",
       "type": "Microsoft.Sql/servers/firewallRules",
       "properties": {
@@ -288,7 +366,7 @@
     }
     {{else}}
     {
-      "apiVersion": "[variables('SqlApiVersion')]",
+      "apiVersion": "[variables('sqlApiVersion')]",
       "name": "[concat(parameters('sqlServerName'), '/All')]",
       "type": "Microsoft.Sql/servers/firewallRules",
       "properties": {
@@ -302,7 +380,7 @@
     }{{/if}}{{#if enableServiceEndpoint}},
     {
       "type": "Microsoft.Sql/servers/virtualNetworkRules",
-      "apiVersion": "[variables('SqlApiVersion')]",
+      "apiVersion": "[variables('sqlApiVersion')]",
       "name": "[concat(parameters('sqlServerName'), '/', parameters('subnetName'))]",
       "dependsOn": [
         "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
@@ -317,7 +395,7 @@
   "outputs": {
     "databaseServerFQDN" : {
       "type" : "string",
-      "value": "[reference(variables('sqlServerName')).fullyQualifiedDomainName]"
+      "value": "[reference(parameters('sqlServerName')).fullyQualifiedDomainName]"
     }{{#if createDB}},
     "databaseName" : {
         "type" : "string",

@@ -66,6 +66,27 @@
         "sqlDatabaseMaxSizeBytes": {
             "value": "2147483648"
         },
+        "sqlBackupRetentionDays": {
+            "value": 7
+        },
+        {{#if enableLTR}}
+        "sqlBackupLTRpolicy": {
+            "value": {
+              "weeklyRetention": "P6W",
+              "monthlyRetention": null,
+              "yearlyRetention": null,
+              "weekOfYear": null
+            }
+        }
+        {{/if}}
+        {{/if}}
+        {{#if enableAAD}}
+        "aadAdminObjectId": {
+            "value": ""
+        },
+        "aadAdminLogin": {
+            "value": ""
+        },
         {{/if}}
         "tags": {
           "value": {}
