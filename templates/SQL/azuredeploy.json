@@ -80,7 +80,7 @@
       }
     },
     {{#if existingStorage}}
-    "storageAccountResourceGroup": {
+    "auditStorageAccountResourceGroup": {
       "type": "string",
       "defaultValue": "[resourceGroup().name]",
       "metadata": {
@@ -247,17 +247,19 @@
     },
     {{/unless}}
     {
-      "type": "Microsoft.Sql/servers/auditingPolicies",
+      "type": "Microsoft.Sql/servers/auditingSettings",
       "name": "[concat(parameters('sqlServerName'), '/Default')]",
-      "apiVersion": "2014-04-01",
+      "apiVersion": "2017-03-01-preview",
       "location": "[parameters('location')]",
       "properties": {
-        "auditingState": "Enabled",
+        "State": "Enabled",
         "storageAccountName" : "[parameters('auditStorageAccountName')]",
-        "storageAccountResourceGroupName": "[resourceGroup().name]",
-        "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('auditStorageAccountName')), '2015-05-01-preview').key1]",
-        "storageAccountSubscriptionId": "[subscription().id]",
-        "retentionDays": "[parameters('auditRetentionDays')]"
+        "storageEndpoint": "[concat('https://',parameters('storageName'),'.blob.core.windows.net')]",
+        "storageAccountResourceGroupName": "[parameters('auditStorageAccountResourceGroup')]",
+        "storageAccountSubscriptionId": "[subscription().subscriptionId]",
+        "storageAccountAccessKey": "[listKeys(resourceId(parameters('storageAccountResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('storageName')), '2015-05-01-preview').key1]",        "storageAccountSubscriptionId": "[subscription().id]",
+        "retentionDays": "[parameters('auditRetentionDays')]",
+        "isStorageSecondaryKeyInUse": false
       },
       "dependsOn": [
         "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"{{#unless existingStorage}},

@@ -36,14 +36,14 @@
         },
         {{/if}}
         {{#if enableAudit}}
-        "storageName": {
+        "auditStorageAccountName": {
             "value": ""
         },
         "auditRetentionDays": {
             "value": "0"
         },
         {{#if existingStorage}}
-        "storageAccountResourceGroup": {
+        "auditStorageAccountResourceGroup": {
           "value": ""
         },
         {{else}}
