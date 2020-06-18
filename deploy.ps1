@@ -73,15 +73,23 @@ param(
     [string]$ParamFilePath = 'azuredeploy.parameters.json',
 
     [string]$storageResourceGroupName,
+
+    [Parameter(Mandatory)]
     [string]$StorageAccountName,
-    [string]$storageContainer,
+
+    [string]$storageContainer = "deploy",
+
     [string]$location,
+    
     [string]$deploymentName
 )
 
 BEGIN {
     Set-StrictMode -Version latest
-    $ErrorActionPreference = "stop" 
+    $ErrorActionPreference = "stop"
+    if ([string]::IsNullOrEmpty($storageResourceGroupName)) {
+        $storageResourceGroupName = $ResourceGroupName
+    }
     
     $stopWatch = [system.diagnostics.stopwatch]::StartNew()
 } #BEGIN
@@ -127,6 +135,8 @@ PROCESS {
             Test if the resource group exists
         #>
         param(
+            [Parameter(Mandatory)]
+            [ValidateNotNullOrEmpty()]
             [string] $ResourceGroupName
         )
         $rg = Get-AzResourceGroup -name $ResourceGroupName -ea 0
@@ -135,6 +145,8 @@ PROCESS {
 
     function Ensure-RG {
         param(
+            [Parameter(Mandatory)]
+            [ValidateNotNullOrEmpty()]
             [string] $ResourceGroupName
         )
 
@@ -148,8 +160,11 @@ PROCESS {
     function Test-StorageAccount {
         param(
             [Parameter(Mandatory)]
+            [ValidateNotNullOrEmpty()]
             [string] $StorageAccountName,
+
             [Parameter(Mandatory)]
+            [ValidateNotNullOrEmpty()]
             [string] $ResourceGroupName
         )
         $sto = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -Name $StorageAccountName  -ea 0
