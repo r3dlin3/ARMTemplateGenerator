@@ -67,8 +67,9 @@
 param(
     [Parameter(Mandatory)]
     [string]$ResourceGroupName,
-    [ValidateScript({Test})]
+    [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
     [string]$TemplateFilePath = 'azuredeploy.json',
+    [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
     [string]$ParamFilePath = 'azuredeploy.parameters.json',
 
     [string]$storageResourceGroupName,
@@ -264,8 +265,8 @@ PROCESS {
     $ArtifactsLocationSasTokenName = '_artifactsLocationSasToken'
 
     $ctx = (Get-AzStorageAccount -ResourceGroupName $storageResourceGroupName -Name $StorageAccountName).Context
-    $OptionalParameters[$ArtifactsLocationName] = "{0}{1}/{2}" -f $ctx.BlobEndPoint,$storageContainer,$tmpFolder
-
+    $OptionalParameters[$ArtifactsLocationName] = "{0}{1}/{2}/" -f $ctx.BlobEndPoint,$storageContainer,$tmpFolder
+    Write-Verbose "$ArtifactsLocationName = $($OptionalParameters[$ArtifactsLocationName])"
     # Generate a 4 hour SAS token for the artifacts location if one was not provided in the parameters file
     $OptionalParameters[$ArtifactsLocationSasTokenName] = ConvertTo-SecureString -AsPlainText -Force `
             (New-AzStorageContainerSASToken -Container $storageContainer -Context $ctx -Permission r -ExpiryTime (Get-Date).AddHours(4))
