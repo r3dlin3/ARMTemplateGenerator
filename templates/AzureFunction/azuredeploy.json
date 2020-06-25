@@ -62,6 +62,7 @@
         {{#if isLinux}}
         "linuxFxVersion": {
             "type": "string",
+            "defaultValue": "",
             "allowedValues": [
                 "Python|3.8",
                 "Python|3.7",
@@ -207,11 +208,11 @@
         {{#if createManagedServiceIdentity}}
         "objectId": {
            "type": "string",
-           "value": "[reference(concat(resourceId('Microsoft.Web/sites', parameters('functionName')), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2015-08-31-PREVIEW').principalId]"
+           "value": "[reference(resourceId('Microsoft.Web/sites', parameters('functionName')), '2019-08-01', 'full').identity.principalId]"
         },
         "tenantId": {
             "type": "string",
-           "value": "[reference(concat(resourceId('Microsoft.Web/sites', parameters('functionName')), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2015-08-31-PREVIEW').tenantId]"
+            "value": "[reference(resourceId('Microsoft.Web/sites', parameters('functionName')), '2019-08-01', 'full').identity.tenantId]"
         }
         {{/if}}
     }
