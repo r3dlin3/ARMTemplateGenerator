@@ -61,6 +61,10 @@
     Location used for the creation of the resources if they 
     do not exist already: resource groups, storage account
 .PARAMETER deploymentName
+    Name of the deployment.
+    Default value is computed based on the template filename and the date.
+.PARAMETER OptionalParameters
+    Parameters can be passed to the deployment.
 
 #>
 [CmdletBinding()]
@@ -81,7 +85,11 @@ param(
 
     [string]$location,
     
-    [string]$deploymentName
+    [string]$deploymentName,
+
+    [Hashtable] $OptionalParameters = @{}
+
+    
 )
 
 BEGIN {
@@ -274,7 +282,6 @@ PROCESS {
                 -localfolder $localfolder
     
 
-    $OptionalParameters = @{}
     # Constants for params for Storage Account URL and SAS token
     $ArtifactsLocationName = '_artifactsLocation'
     $ArtifactsLocationSasTokenName = '_artifactsLocationSasToken'
