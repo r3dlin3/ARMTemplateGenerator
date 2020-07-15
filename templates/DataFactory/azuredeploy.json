@@ -1,0 +1,93 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dataFactoryName": {
+            "type": "string"
+        },
+        {{#if gitIntegration}}
+        "gitAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Account name."
+            }
+        },
+        {{#is gitRepositoryType "FactoryVSTSConfiguration"}}
+        "gitProjectName": {
+            "type": "string",
+            "metadata": {
+                "description": "Project name."
+            }
+        },
+        {{/is}}
+        "gitRepositoryName": {
+            "type": "string",
+            "metadata": {
+                "description": "Repository name."
+            }
+        },
+        "gitCollaborationBranch": {
+            "type": "string",
+            "defaultValue": "master",
+            "metadata": {
+                "description": "Collaboration branch."
+            }
+        },
+        "gitRootFolder": {
+            "type": "string",
+            "defaultValue": "/",
+            "metadata": {
+                "description": "Root Folder in repository."
+            }
+        },
+        "gitRepositoryType": {
+            "type": "string",
+            "defaultValue": "{{gitRepositoryType}}",
+            "metadata": {
+                "description": "Repository Type."
+            }
+        },
+        {{/if}}
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for your data factory"
+            }
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2018-06-01",
+            "name": "[parameters('dataFactoryName')]",
+            "location": "[parameters('location')]",
+            "type": "Microsoft.DataFactory/factories",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                {{#if gitIntegration}}
+                "repoConfiguration": {
+                    "type": "[parameters('gitRepositoryType')]",
+                    "accountName": "[parameters('gitAccountName')]",
+                    "repositoryName": "[parameters('gitRepositoryName')]",
+                    "collaborationBranch": "[parameters('gitCollaborationBranch')]",
+                    "rootFolder": "[parameters('gitRootFolder')]"{{#is gitRepositoryType "FactoryVSTSConfiguration"}},
+                    "projectName": "[parameters('gitProjectName')]"
+                    {{/is}}
+                }
+                {{/if}}
+            }
+        }
+    ],
+    "outputs": {
+        "objectId": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.DataFactory/factories', parameters('dataFactoryName')), '2018-06-01', 'full').identity.principalId]"
+        },
+        "tenantId": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.DataFactory/factories', parameters('dataFactoryName')), '2018-06-01', 'full').identity.tenantId]"
+        }
+    }
+}
