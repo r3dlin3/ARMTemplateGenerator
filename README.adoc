@@ -22,11 +22,12 @@ It is based on plop. Instead of a ton of parameters, the CLI will ask questions 
 At this moment, ARMTemplateGenerator supports:
 
 * Azure App Service
-* Azure Function
+* Azure Container Registry
+* Azure Data Factory
 * Azure Data Lake Store (v1)
+* Azure Function
 * Azure Key Vault
 * Azure Kubernetes Service
-* Azure Container Registry
 * Azure SQL
 * Azure Database for MySQL
 * Recovery Services Vault
