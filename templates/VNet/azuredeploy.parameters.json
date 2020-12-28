@@ -1,0 +1,60 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworkName": {
+            "value": "{{name}}"
+        },
+        "vnetAddressPrefix": {
+            "value": "10.0.0.0/16"
+        },
+        "subnetArray": {
+            "value": [
+                {
+                    "subnetName": "AzureFirewallSubnet",
+                    "addressPrefix": "10.0.0.0/24",
+                    "udrName": null,
+                    "delegations": null,
+                    "privateEndpointNetworkPolicies": null
+                },
+                {
+                    "subnetName": "AzureBastionSubnet",
+                    "addressPrefix": "10.0.1.0/24",
+                    "udrName": null,
+                    "delegations": null,
+                    "privateEndpointNetworkPolicies": null
+                },
+                {
+                    "subnetName": "PrivateEndpointSubnet",
+                    "addressPrefix": "10.0.3.0/24",
+                    "udrName": null,
+                    "delegations": null,
+                    "privateEndpointNetworkPolicies": "Disabled"
+                },
+                {
+                    "subnetName": "VNETIntegrationSubnet",
+                    "addressPrefix": "10.0.4.0/24",
+                    "udrName": "myUDR",
+                    "privateEndpointNetworkPolicies": null,
+                    "delegations": [
+                        {
+                            "name": "delegation",
+                            "properties": {
+                                "serviceName": "Microsoft.Web/serverFarms"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {{#if customDnsServer}}
+        "customDnsIpAddress": {
+            "value": [
+                "10.0.0.10"
+            ]
+        }{{/if}},
+        "tagValues": {
+            "value": {}
+        }
+    }
+}

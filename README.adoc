@@ -34,6 +34,7 @@ At this moment, ARMTemplateGenerator supports:
 * Storage Account & Data Lake Storage Gen2
 * VM
 * Azure Bastion
+* Virtual Network
 
 === Why create or use ARMTemplateGenerator?
 

@@ -1,0 +1,80 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworkName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Virtual Network"
+            }
+        },
+        "vnetAddressPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Address prefix of VNET"
+            }
+        },
+        "subnetArray": {
+            "type": "array",
+            "metadata": {
+                "description": "List of subnets for this VNET. Each subnet is described by an object {\"subnetName\": \"\", \"addressPrefix\": \"\", \"udrName\": null, \"delegations\": null, \"privateEndpointNetworkPolicies\": null}"
+            }
+        },{{#if customDnsServer}}
+        "customDnsIpAddress": {
+            "type": "array",
+            "metadata": {
+                "description": "Array of IP Addresses of custom DNS"
+            }
+        },{{/if}}
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "The region to deploy the resources into"
+            }
+        },
+        "tagValues": {
+            "type": "object",
+            "defaultValue": {}
+        }
+    },
+    "variables": {
+        "routeTable": "{\"id\": \"[resourceId('Microsoft.Network/routeTables', parameters('subnetArray')[copyIndex('subnets')].udrName)]\"}"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('virtualNetworkName')]",
+            "apiVersion": "2018-04-01",
+            "location": "[parameters('location')]",
+            "comments": "This will build a Virtual Network.",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('vnetAddressPrefix')]"
+                    ]
+                },{{#if customDnsServer}}
+                "dhcpOptions": {
+                    "dnsServers": "[parameters('customDnsIpAddress')]"
+                },{{/if}}
+                "copy": [
+                    {
+                        "name": "subnets",
+                        "count": "[length(parameters('subnetArray'))]",
+                        "input": {
+                            "name": "[parameters('subnetArray')[copyIndex('subnets')].subnetName]",
+                            "properties": {
+                                "addressPrefix": "[parameters('subnetArray')[copyIndex('subnets')].addressPrefix]",
+                                "privateEndpointNetworkPolicies": "[parameters('subnetArray')[copyIndex('subnets')].privateEndpointNetworkPolicies]",
+                                "routeTable": "[if(equals(parameters('subnetArray')[copyIndex('subnets')].udrName,json('null')), json('null'), json(variables('routeTable')))]",
+                                "delegations": "[parameters('subnetArray')[copyIndex('subnets')].delegations]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "tags": "[parameters('tagValues')]"
+        }
+    ],
+    "outputs": {}
+}
