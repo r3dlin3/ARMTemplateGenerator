@@ -22,9 +22,11 @@ It is based on plop. Instead of a ton of parameters, the CLI will ask questions 
 At this moment, ARMTemplateGenerator supports:
 
 * Azure App Service
+* Azure Bastion
 * Azure Container Registry
 * Azure Data Factory
 * Azure Data Lake Store (v1)
+* Azure Firewall
 * Azure Function
 * Azure Key Vault
 * Azure Kubernetes Service
@@ -32,9 +34,8 @@ At this moment, ARMTemplateGenerator supports:
 * Azure Database for MySQL
 * Recovery Services Vault
 * Storage Account & Data Lake Storage Gen2
-* VM
-* Azure Bastion
 * Virtual Network
+* VM
 
 === Why create or use ARMTemplateGenerator?
 

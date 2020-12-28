@@ -1,0 +1,59 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "firewallName": {
+            "value": "{{name}}"
+        },
+        "virtualNetworkName": {
+            "value": ""
+        },
+        "publicIPName": {
+            "value": "{{name}}-pip"
+        },
+        "applicationRuleCollections": {
+            "value": [
+                {
+                    "name": "InternetAccess",
+                    "properties": {
+                        "priority": "100",
+                        "action": {
+                            "type": "Allow"
+                        },
+                        "rules": [
+                            {
+                                "name": "Internet",
+                                "description": "Rule that permit access to authorized public FQDNs",
+                                "sourceAddresses": [
+                                    "10.0.0.0/16"
+                                ],
+                                "protocols": [
+                                    {
+                                        "protocolType": "http",
+                                        "port": "80"
+                                    },
+                                    {
+                                        "protocolType": "https",
+                                        "port": "443"
+                                    }
+                                ],
+                                "targetFqdns": [
+                                    "google.fr",
+                                    "*.google.fr",
+                                    "google.com",
+                                    "*.google.com",
+                                    "*.blob.core.windows.net",
+                                    "chocolatey.org",
+                                    "*.chocolatey.org"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }{{#if isLogEnabled}},
+        "logAnalyticsWorkspaceName": {
+            "value": "{{name}}-log"
+        }{{/if}}
+    }
+}
