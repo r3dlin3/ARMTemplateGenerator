@@ -1,0 +1,85 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "bastionName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of Azure Bastion resource"
+            }
+        },
+        "bastionPublicIpName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of Azure Bastion resource"
+            }
+        },
+        "virtualNetworkName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Virtual Network"
+            }
+        },
+        "virtualNetworkResourceGroupName": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "Name of the Resource Group of the Virtual Network"
+            }
+        },
+        "tagValues": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Azure region for Bastion and virtual network"
+            }
+        }
+    },
+    "variables": {
+        "bastionSubnetName": "AzureBastionSubnet" // https://docs.microsoft.com/en-us/azure/bastion/bastion-nsg#apply
+    },
+    "resources": [
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/publicIpAddresses",
+            "name": "[parameters('bastionPublicIpName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            },
+            "tags": "[parameters('tagValues')]"
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/bastionHosts",
+            "name": "[parameters('bastionName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIpAddresses', parameters('bastionPublicIpName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "IpConf",
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bastionSubnetName'))]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('bastionPublicIpName'))]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "tags": "[parameters('tagValues')]"
+        }
+    ]
+}
