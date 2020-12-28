@@ -33,6 +33,7 @@ At this moment, ARMTemplateGenerator supports:
 * Recovery Services Vault
 * Storage Account & Data Lake Storage Gen2
 * VM
+* Azure Bastion
 
 === Why create or use ARMTemplateGenerator?
 

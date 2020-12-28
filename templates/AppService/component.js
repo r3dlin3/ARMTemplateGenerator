@@ -36,6 +36,12 @@ module.exports.generator = {
         },
         {
             type: 'confirm',
+            name: 'isVnetIntegrationEnabled',
+            default: false,
+            message: 'Do you want to integrate your app with an Azure virtual network? It Requires a Standard, Premium, PremiumV2, PremiumV3, or Elastic Premium pricing plan.',
+        },
+        {
+            type: 'confirm',
             name: 'createSlot',
             default: false,
             message: 'Do you want to create slots?',

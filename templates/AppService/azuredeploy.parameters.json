@@ -60,18 +60,23 @@
     {{/if}}
     {{#if createCache}}
     "cacheName": {
-      "value": "",
+        "value": "",
     },
     "cacheSKUName": {
-      "value": "Basic",
+        "value": "Basic",
     },
     "cacheSKUFamily": {
-      "value": "C"
+        "value": "C"
     },
     "cacheSKUCapacity": {
-      "value": 0,
+        "value": 0,
+    },{{/if}}{{#if isVnetIntegrationEnabled}}
+    "virtualNetworkName": {
+        "value": ""
     },
-    {{/if}}
+    "subnetName": {
+        "value": ""
+    },{{/if}}
     "tags": {
       "value": {}
     }

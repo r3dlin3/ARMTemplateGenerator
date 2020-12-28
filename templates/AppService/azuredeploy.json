@@ -36,7 +36,13 @@
                 "S3",
                 "P1",
                 "P2",
-                "P3"
+                "P3",
+                "P1v2",
+                "P2v2",
+                "P3v2",
+                "P1v3",
+                "P2v3",
+                "P3v3"
             ],
             "defaultValue": "F1",
             "metadata": {
@@ -206,7 +212,26 @@
           "metadata": {
             "description": "IP address restrictions for web app Source Control"
           }
+        },{{#if isVnetIntegrationEnabled}}
+        "virtualNetworkName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Virtual Network"
+            }
         },
+        "virtualNetworkResourceGroupName": {
+          "type": "string",
+          "defaultValue": "[resourceGroup().name]",
+          "metadata": {
+            "description": "Name of the Resource Group of the Virtual Network"
+          }
+        },
+        "subnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the subnet. "
+            }
+        },{{/if}}
         "tags": {
             "type": "object",
             "defaultValue": {}
@@ -379,7 +404,7 @@
                 "name": "[parameters('siteName')]",
                 "serverFarmId": "[parameters('appServicePlanName')]",
                 "ipSecurityRestrictions": "[parameters('ipAddressRestriction')]",
-                "scmIpSecurityRestrictions": "[parameters('ipAddressRestriction')]",
+                "scmIpSecurityRestrictions": "[parameters('scmIpAddressRestriction')]",
                 "httpsOnly": true,
                 "minTlsVersion": "1.2",
                 "clientAffinityEnabled": false,
@@ -404,8 +429,7 @@
                 }
             },
             "resources": [
-                {{#if createAppInsights}}
-                {
+                {{#if createAppInsights}}{
                     "apiVersion": "[variables('apiVersion')]",
                     "name": "[concat(parameters('siteName'),'/Microsoft.ApplicationInsights.AzureWebSites')]",
                     "type": "Microsoft.Web/sites/siteextensions",
@@ -416,8 +440,18 @@
                     "properties": {
                         "version": "2.6.5"
                     }
-                },
-                {{/if}}
+                },{{/if}}{{#if isVnetIntegrationEnabled}}{
+                  "name": "virtualNetwork",
+                  "type": "config",
+                  "apiVersion": "2019-08-01",
+                  "dependsOn": [
+                      "[resourceId('Microsoft.Web/sites', parameters('siteName'))]"
+                  ],
+                  "properties": {
+                      "subnetResourceId": "[resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
+                      "swiftSupported": true
+                  }
+                },{{/if}}
                 {
                     "apiVersion": "2014-11-01",
                     "name": "appsettings",
@@ -444,6 +478,9 @@
                         {{#if createCache}}
                         "CacheConnection": "[concat(variables('cacheName'),'.redis.cache.windows.net,abortConnect=false,ssl=true,password=', listKeys(resourceId('Microsoft.Cache/Redis', parameters('cacheName')), '2015-08-01').primaryKey)]",
                         {{/if}}
+                        {{#if isVnetIntegrationEnabled}}
+                        "WEBSITE_VNET_ROUTE_ALL ": "0",
+                        {{/if}}
                         "foo": "bar"
                     }
                 }
@@ -459,12 +496,12 @@
             "type": "array",
             "value": "[split(reference(parameters('siteName'), '2018-02-01').possibleOutboundIpAddresses, ',')]"
         }{{#if enableManagedIdentity}},
-        "apiObjectId": {
+        "appObjectId": {
             "type": "string",
             "value": "[reference(resourceId('Microsoft.Web/sites', parameters('siteName')), '2019-08-01', 'full').identity.principalId]"
 
         },
-        "apiTenantId": {
+        "appTenantId": {
             "type": "string",
             "value": "[reference(resourceId('Microsoft.Web/sites', parameters('siteName')), '2019-08-01', 'full').identity.tenantId]"
         },
