@@ -15,10 +15,31 @@
     "capacity": {
       "value": 1
     },
-    {{/unless}}
+    {{#if isLinux}}
+    "linuxFxVersion": {
+      {{#if docker}}
+      "value": "DOCKER|phpoidc/phpoidc:phpop"
+      {{else}}
+      "value": "PHP|7.4"
+      {{/if}}
+    },
+    "startupCommand": {
+      "value": ""
+    },{{#if docker}}
+    "dockerRegistryUrl": {
+      "value": "https://index.docker.io"
+    },
+    "dockerRegistryUsername": {
+      "value": ""
+    },
+    "dockerRegistryPassword": {
+      "value": ""
+    },{{/if}}
+    {{/if}}{{!-- isLinux --}}
+    {{/unless}}{{!-- existingASP --}}
     {{#if createSlot}}
     "environments": {
-        "value": ["Dev","QA","UAT","Preview"]
+      "value": ["Dev","QA","UAT","Preview"]
     },
     {{/if}}
     {{#if createAppInsights}}

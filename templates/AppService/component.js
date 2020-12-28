@@ -18,17 +18,20 @@ module.exports.generator = {
             message: 'Do you want to use an existing App Service Plan?'
         },
         {
-            type: 'list',
-            name: 'kind',
-            choices: [{
-                name: "Windows", value: "app"
-            }, {
-                name: "Linux", value: "linux"
-            }
-            ],
-            message: 'What kind of App Service Plan do you want?',
+            type: 'confirm',
+            name: 'isLinux',
+            message: 'Do you want an App Service Plan on Linux?',
             when: function (answers) {
                 return !answers.existingASP;
+            },
+        },
+        {
+            type: 'confirm',
+            name: 'docker',
+            default: false,
+            message: 'Do you want to use a custom docker image?',
+            when: function (answers) {
+                return answers.isLinux;
             },
         },
         {

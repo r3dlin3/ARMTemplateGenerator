@@ -48,32 +48,82 @@
            "defaultValue": 1,
            "metadata": {
                 "description": "Current number of instances assigned to the resource."
-            }
+           }
         },
-        {{/if}}
+        {{#if isLinux}}
+        "linuxFxVersion": {
+            "type": "String"{{#unless docker}},
+            "allowedValues": [{{!-- cf. az webapp list-runtimes --linux --}}
+              "RUBY|2.5.5",
+              "RUBY|2.6.2",
+              "NODE|14-lts",
+              "NODE|12-lts",
+              "NODE|10-lts",
+              "NODE|10.1",
+              "NODE|10.10",
+              "NODE|10.12",
+              "NODE|10.14",
+              "NODE|12.9",
+              "PHP|7.2",
+              "PHP|7.3",
+              "PHP|7.4",
+              "DOTNETCORE|2.1",
+              "DOTNETCORE|3.1",
+              "TOMCAT|8.5-jre8",
+              "TOMCAT|9.0-jre8",
+              "JAVA|8-jre8",
+              "WILDFLY|14-jre8",
+              "JBOSSEAP|7.2-java8",
+              "TOMCAT|8.5-java11",
+              "TOMCAT|9.0-java11",
+              "JAVA|11-java11",
+              "PYTHON|3.8",
+              "PYTHON|3.7",
+              "PYTHON|3.6",
+              "STATICSITE|1.0"
+            ]
+            {{/unless}}
+        },
+        "startupCommand": {
+            "type": "String",
+            "defaultValue": ""
+        },{{#if docker}}
+        "dockerRegistryUrl": {
+            "type": "String",
+            "defaultValue": "https://index.docker.io"
+        },
+        "dockerRegistryUsername": {
+            "type": "String",
+            "defaultValue": ""
+        },
+        "dockerRegistryPassword": {
+            "type": "SecureString",
+            "defaultValue": ""
+        },{{/if}}
+        {{/if}}{{!-- isLinux --}}
+        {{/if}}{{!-- existingASP --}}
         {{#if createSlot}}
         "environments": {
-            "defaultValue": [
-              "Dev",
-              "QA",
-              "UAT",
-              "Preview"
-            ],
-            "type": "array",
-            "metadata": {
-              "description": "Array with the names for the environment slots"
-            },
-            "maxLength": 19
+          "defaultValue": [
+            "Dev",
+            "QA",
+            "UAT",
+            "Preview"
+          ],
+          "type": "array",
+          "metadata": {
+            "description": "Array with the names for the environment slots"
           },
+          "maxLength": 19
+        },
         {{/if}}
         {{#if createAppInsights}}
         "appInsightsName": {
-            "type": "string",
-            "metadata": {
-                 "description": "Name of the Application Insights."
-             }
-         },
-        {{/if}}
+          "type": "string",
+          "metadata": {
+            "description": "Name of the Application Insights."
+          }
+        },{{/if}}
         {{#if createCDN}}
         "CDNProfileName": {
             "type": "string",
@@ -160,11 +210,17 @@
         {
             "apiVersion": "[variables('apiVersion')]",
             "name": "[parameters('appServicePlanName')]",
-            "kind": "{{kind}}",
+            {{#if isLinux}}
+            "kind": "linux",
+            {{else}}
+            "kind": "app",
+            {{/if}}
             "type": "Microsoft.Web/serverfarms",
             "location": "[parameters('location')]",
             "properties": {
-                "name": "[parameters('appServicePlanName')]"
+                "name": "[parameters('appServicePlanName')]"{{#if isLinux}},
+                "reserved": true
+                {{/if}}
             },
             "sku": {
                 "name": "[parameters('skuName')]",
@@ -180,8 +236,7 @@
             "name": "[concat(variables('siteName'), '/', parameters('environments')[copyIndex()])]",
             "kind": "app",
             "location": "[parameters('location')]",
-            "comments": "This specifies the web app slots.",
-            
+            "comments": "This specifies the web app slots.",      
             "properties": {
               "serverFarmId": "[resourceId({{#if existingASP}}parameters('appServicePlanResourceGroupName'),{{/if}}'Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
             },
@@ -283,6 +338,11 @@
             "name": "[parameters('siteName')]",
             "type": "Microsoft.Web/sites",
             "location": "[parameters('location')]",
+            {{#if isLinux}}
+            "kind": "app,linux",
+            {{else}}
+            "kind": "app",
+            {{/if}}
             "dependsOn": [
                 {{#unless existingASP}}
                 "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
@@ -297,10 +357,16 @@
                 "name": "[parameters('siteName')]",
                 "serverFarmId": "[parameters('appServicePlanName')]",
                 "httpsOnly": true,
+                "clientAffinityEnabled": false,
                 "siteConfig": {
                   "use32BitWorkerProcess": "[variables('use32BitWorkerProcess')]",
+                  {{#if isLinux}}
+                  "linuxFxVersion": "[parameters('linuxFxVersion')]",
+                  "appCommandLine": "[parameters('startupCommand')]",
+                  {{else}}
                   "phpVersion": "off",
                   "netFrameworkVersion": "v4.7",
+                  {{/if}}
                   "webSocketsEnabled": false,
                   "requestTracingEnabled": true,
                   "detailedErrorLoggingEnabled": true,
@@ -308,7 +374,8 @@
                   "logsDirectorySizeLimit": 40,
                   "remoteDebuggingEnabled": false,
                   "ftpsState": "Disabled",
-                  "defaultDocuments": []
+                  "defaultDocuments": [],
+                  "http20Enabled": true
                 }
             },
             "resources": [
@@ -337,6 +404,14 @@
                         {{/if}}
                     ],
                     "properties": {
+                        {{#if isLinux}}
+                        {{#if docker}}
+                        "DOCKER_REGISTRY_SERVER_URL": "[parameters('dockerRegistryUrl')]",
+                        "DOCKER_REGISTRY_SERVER_USERNAME": "[parameters('dockerRegistryUsername')]",
+                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[parameters('dockerRegistryPassword')]",
+                        "WEBSITES_PORT": "8080",
+                        {{/if}}
+                        {{/if}}
                         {{#if createAppInsights}}
                         "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName'))).InstrumentationKey]",
                         "AppInsights:InstrumentationKey": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName'))).InstrumentationKey]",
