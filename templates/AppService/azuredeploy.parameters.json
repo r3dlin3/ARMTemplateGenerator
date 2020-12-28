@@ -6,7 +6,7 @@
       "value": "{{name}}"
     },
     "appServicePlanName": {
-      "value": ""
+      "value": "{{name}}-plan"
     },
     {{#unless existingASP}}
     "skuName": {

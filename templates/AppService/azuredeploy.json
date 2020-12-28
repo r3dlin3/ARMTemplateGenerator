@@ -185,6 +185,28 @@
             }
           },
         {{/if}}{{!-- createCache --}}
+        "ipAddressRestriction": {
+          "type": "array",
+          "defaultValue": [
+            {
+                "ipAddress": "0.0.0.0/32"
+            }
+          ],
+          "metadata": {
+            "description": "IP address restrictions for web app"
+          }
+        },
+        "scmIpAddressRestriction": {
+          "type": "array",
+          "defaultValue": [
+            {
+                "ipAddress": "0.0.0.0/32"
+            }
+          ],
+          "metadata": {
+            "description": "IP address restrictions for web app Source Control"
+          }
+        },
         "tags": {
             "type": "object",
             "defaultValue": {}
@@ -356,7 +378,10 @@
             "properties": {
                 "name": "[parameters('siteName')]",
                 "serverFarmId": "[parameters('appServicePlanName')]",
+                "ipSecurityRestrictions": "[parameters('ipAddressRestriction')]",
+                "scmIpSecurityRestrictions": "[parameters('ipAddressRestriction')]",
                 "httpsOnly": true,
+                "minTlsVersion": "1.2",
                 "clientAffinityEnabled": false,
                 "siteConfig": {
                   "use32BitWorkerProcess": "[variables('use32BitWorkerProcess')]",
