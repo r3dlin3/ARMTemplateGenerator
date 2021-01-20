@@ -42,7 +42,7 @@
             }
         },
         {{#if enableServiceEndpoint}}
-        "vnetName": {
+        "virtualNetworkName": {
         "type": "string",
         "metadata": {
                 "description": "Name of the new or existing VNET"
@@ -54,7 +54,7 @@
                 "description": "Name of the new or existing subnet"
             }
         },
-        "vnetResourceGroup": {
+        "virtualNetworkResourceGroupName": {
             "type": "string",
             "defaultValue" : "[resourceGroup().name]",
             "metadata": {
@@ -162,7 +162,7 @@
     },
     "variables": {
         {{#if enableServiceEndpoint}}
-        "vnetID": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]"
+        "vnetID": "[resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]"
         {{/if}}
     },
     "resources": [

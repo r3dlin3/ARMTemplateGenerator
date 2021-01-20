@@ -121,13 +121,13 @@
             }
         },
         {{#if existingVNET}}
-        "vnetName": {
+        "virtualNetworkName": {
             "type": "string",
             "metadata": {
                 "description": "Name of an existing VNET that will contain this AKS deployment."
             }
         },
-        "vnetResourceGroup": {
+        "virtualNetworkResourceGroupName": {
             "type": "string",
             "metadata": {
                 "description": "Name of the existing VNET resource group"
@@ -290,7 +290,7 @@
     },
     "variables": {
         {{#if existingVNET}}
-        "vnetSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('subnetName'))]",
+        "vnetSubnetId": "[resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets',parameters('virtualNetworkName'),parameters('subnetName'))]",
         {{/if}}
         {{#if enableLogging}}{{#unless createWorkspace}}
         "workspaceResourceId": "[resourceId(parameters('workspaceResourceGroup'), 'Microsoft.OperationalInsights/workspaces',parameters('workspaceName'))]",
@@ -399,7 +399,7 @@
             "name": "ClusterSubnetRoleAssignmentDeployment",
             "apiVersion": "2017-05-10",
             "subscriptionId": "[subscription().subscriptionId]",
-            "resourceGroup": "[parameters('vnetResourceGroup')]",
+            "resourceGroup": "[parameters('virtualNetworkResourceGroupName')]",
             "properties": {
                 "mode": "Incremental",
                 "template": {
@@ -411,7 +411,7 @@
                         {
                             "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
                             "apiVersion": "2017-05-01",
-                            "name": "[concat(parameters('vnetName'), '/', parameters('subnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
+                            "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
                                 "principalId": "[parameters('servicePrincipalObjectId')]",

@@ -2,14 +2,14 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "vnetName": {
+    "virtualNetworkName": {
       "value": ""
     },
     "subnetName": {
       "value": ""
     },
     {{#if existingVNET}}
-    "vnetResourceGroup": {
+    "virtualNetworkResourceGroupName": {
       "value": ""
     },
     {{/if}}
@@ -25,7 +25,7 @@
     {{/unless}}
     {{#if hasPublicIP}}
     "dnsLabelPrefix": {
-      "value": "{{name}}"
+      "value": "{{lowerCase name}}"
     },
     "publicIPAddressName": {
         "value": ""

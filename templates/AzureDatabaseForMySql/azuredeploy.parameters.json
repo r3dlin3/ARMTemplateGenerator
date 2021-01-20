@@ -24,13 +24,13 @@
         "value": "Enabled"
     },
     {{#if enableServiceEndpoint}}
-    "vnetName": {
+    "virtualNetworkName": {
         "value": ""
     },
     "subnetName": {
         "value": ""
     },
-    "vnetResourceGroup": {
+    "virtualNetworkResourceGroupName": {
         "value": ""
     },
     {{/if}}

@@ -14,7 +14,7 @@
                 "description": "Name of the public IP address"
             }
         },
-        "vnetName": {
+        "virtualNetworkName": {
            "type": "string",
            "metadata": {
                 "description": "Name of the new or existing VNET"
@@ -26,7 +26,7 @@
                  "description": "Name of the new or existing subnet"
              }
          },
-        "vnetResourceGroup": {
+        "virtualNetworkResourceGroupName": {
             "type": "string",
             "metadata": {
                  "description": "Resource group of the new or existing VNET"
@@ -152,7 +152,7 @@
         "imageSKU": "2016-Datacenter",
         "imageVersion": "latest",
         "publicIPAddressType": "Dynamic",
-        "vnetID": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
+        "vnetID": "[resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
         "subnetID": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
         "apiVersion": "2015-06-15"
     },

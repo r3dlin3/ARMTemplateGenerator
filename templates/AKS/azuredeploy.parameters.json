@@ -57,10 +57,10 @@
             "value": true
         },
         {{#if existingVNET}}
-        "vnetName": {
+        "virtualNetworkName": {
             "value": "## TO BE DEFINED ##"
         },
-        "vnetResourceGroup": {
+        "virtualNetworkResourceGroupName": {
             "value": "## TO BE DEFINED ##"
         },
         "subnetName": {
