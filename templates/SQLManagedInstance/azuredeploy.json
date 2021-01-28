@@ -9,6 +9,7 @@
         "description": "The name of the server."
       }
     },
+    {{#unless existingServer}}
     "sqlServerAdminLogin": {
       "type": "string",
       "minLength": 1,
@@ -63,13 +64,6 @@
     },
     {{/if}}
     {{/if}}
-    "sqlDatabaseName": {
-      "type": "string",
-      "minLength": 1,
-      "metadata": {
-        "description": "The SQL database name"
-      }
-    },
     "sqlSkuName": {
       "type": "string",
       "defaultValue": "GP_Gen5",
@@ -83,7 +77,7 @@
     },
     "sqlVCores": {
       "type": "int",
-      "defaultValue": 16,
+      "defaultValue": 4,
       "allowedValues": [
         8,
         16,
@@ -117,57 +111,7 @@
         "description": "Enter license type."
       }
     },
-    "sqlDatabaseCollation": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
-      "metadata": {
-        "description": "The SQL database collation"
-      }
-    },
-    "sqlBackupRetentionDays": {
-      "type": "int",
-      "defaultValue": 7,
-      "metadata": {
-        "description": "The backup retention period in days. This is how many days Point-in-Time Restore will be supported."
-      }
-    },
-    {{#if enableLTR}}
-    "sqlBackupLTRpolicy": {
-      "type": "object",
-      "defaultValue": {
-        "weeklyRetention": "P6W",
-        "monthlyRetention": null,
-        "yearlyRetention": null,
-        "weekOfYear": null
-      },
-      "metadata": {
-        "description": "The retention policy for weekly, monthly and yearly backup."
-      }
-    },
-    {{/if}}
-    {{#if enableAAD}}
-    "aadAdminLogin": {
-      "type": "string",
-      "metadata": {
-        "description": "UPN of Azure AD Admin"
-      }
-    },
-    "aadAdminObjectId": {
-      "type": "string",
-      "metadata": {
-        "description": "objectId of Azure AD Admin"
-      }
-    },
-    "tenantId": {
-      "type": "string",
-      "defaultValue": "[subscription().tenantId]",
-      "metadata": {
-        "description": "Tenant Id of the subscription."
-      }
-    },
-    {{/if}}
-    "virtualNetworkName": {
+        "virtualNetworkName": {
       "type": "string",
       "metadata": {
         "description": "Virtual network name used by the Managed instance."
@@ -380,6 +324,66 @@
           "description": "List of MI management IP ranges"
       }
     },
+    {{/unless}}{{!-- existingServer --}}
+    {{#if createDB}}
+    "sqlDatabaseName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The SQL database name"
+      }
+    },
+    "sqlDatabaseCollation": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
+      "metadata": {
+        "description": "The SQL database collation"
+      }
+    },
+    "sqlBackupRetentionDays": {
+      "type": "int",
+      "defaultValue": 7,
+      "metadata": {
+        "description": "The backup retention period in days. This is how many days Point-in-Time Restore will be supported."
+      }
+    },
+    {{#if enableLTR}}
+    "sqlBackupLTRpolicy": {
+      "type": "object",
+      "defaultValue": {
+        "weeklyRetention": "P6W",
+        "monthlyRetention": null,
+        "yearlyRetention": null,
+        "weekOfYear": null
+      },
+      "metadata": {
+        "description": "The retention policy for weekly, monthly and yearly backup."
+      }
+    },
+    {{/if}}
+    {{/if}}
+    {{#if enableAAD}}
+    "aadAdminLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "UPN of Azure AD Admin"
+      }
+    },
+    "aadAdminObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "objectId of Azure AD Admin"
+      }
+    },
+    "tenantId": {
+      "type": "string",
+      "defaultValue": "[subscription().tenantId]",
+      "metadata": {
+        "description": "Tenant Id of the subscription."
+      }
+    },
+    {{/if}}
     "tags": {
       "type": "object",
       "defaultValue": "[resourceGroup().tags]"
@@ -392,12 +396,9 @@
       }
     }
   },
-  "variables": {
-    {{#if enableServiceEndpoint}}
-    "vnetID": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]"
-    {{/if}}
-  },
+  "variables": {},
   "resources": [
+    {{#unless existingServer}}
     {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2020-06-01",
@@ -433,6 +434,22 @@
               "direction": "Inbound"
             }
           },
+          {{#if enablePublicEndpoint}}
+          {
+            "name": "allow_public_endpoint",
+            "properties": {
+              "description": "Allow inbound traffic for public endpoint",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3342",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1300,
+              "direction": "Inbound"
+            }
+          },
+          {{/if}}
           {
             "name": "deny_all_inbound",
             "properties": {
@@ -582,9 +599,16 @@
         "storageSizeInGB": "[parameters('sqlStorageSizeInGB')]",
         "vCores": "[parameters('sqlVCores')]",
         "licenseType": "[parameters('sqlLicenseType')]",
-        "collation": "[parameters('sqlDatabaseCollation')]"
+        {{#if enablePublicEndpoint}}
+        "publicDataEndpointEnabled": true,
+        {{else}}
+        "publicDataEndpointEnabled": false,
+        {{/if}}
+        "proxyOverride": "Redirect",
+        "minimalTlsVersion": "1.2"
       }
     }
+    {{/unless}}
     {{#if enableAAD}}
     {
       "name": "[concat(parameters('sqlServerName'), '/activeDirectory')]",
@@ -600,6 +624,33 @@
         "tenantId": "[parameters('tenantId')]"
       }
     }{{/if}}
+    {{#if createDB}},
+    {
+      "type": "Microsoft.Sql/managedInstances/databases",
+      "apiVersion": "2020-02-02-preview",
+      {{#unless existingServer}}
+      "dependsOn": [
+        "[parameters('managedInstanceName')]"
+      ],{{/unless}}
+      "name": "[concat(parameters('managedInstanceName'), '/', parameters('sqlDatabaseName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+          "collation": "[parameters('sqlDatabaseCollation')]"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/managedInstances/databases/backupShortTermRetentionPolicies",
+      "apiVersion": "2017-03-01-preview",
+      "name": "[concat(parameters('managedInstanceName'), '/', parameters('sqlDatabaseName'), '/default')]",
+      "dependsOn": [
+          "[resourceId('Microsoft.Sql/managedInstances/databases', parameters('managedInstanceName'), parameters('sqlDatabaseName'))]"
+      ],
+      "properties": {
+          "retentionDays": "[parameters('sqlBackupRetentionDays')]"
+      }
+    },
+    {{/if}}
   ],
   "outputs": {}
 }

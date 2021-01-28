@@ -14,6 +14,21 @@ module.exports.generator = {
         },
         {
             type: 'confirm',
+            name: 'existingServer',
+            default: false,
+            message: 'Do you want to use an existing SQL Server?'
+        },
+        {
+            type: 'confirm',
+            name: 'enablePublicEndpoint',
+            default: true,
+            when: function (answers) {
+                return !answers.existingServer;
+            },
+            message: 'Do you want to enable the public endpoint?'
+        },
+        {
+            type: 'confirm',
             name: 'enableAudit',
             default: true,
             when: function (answers) {
@@ -38,6 +53,12 @@ module.exports.generator = {
             when: function (answers) {
                 return answers.enableAudit || answers.enableDBAudit;
             }
+        },
+        {
+            type: 'confirm',
+            name: 'createDB',
+            default: true,
+            message: 'Do you want to create a database?'
         },
         {
             type: 'confirm',

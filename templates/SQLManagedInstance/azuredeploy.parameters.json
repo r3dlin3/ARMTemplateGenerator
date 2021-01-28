@@ -5,6 +5,7 @@
         "managedInstanceName": {
             "value": "{{lowerCase name}}"
         },
+        {{#unless existingServer}}
         "sqlServerAdminLogin": {
             "value": ""
         },
@@ -23,9 +24,15 @@
         "sqlRouteTableName": {
             "value": ""
         },
+        {{/unless}} {{!-- existingServer --}}
+        {{#if createDB}}
         "sqlDatabaseName": {
             "value": ""
         },
+        "sqlDatabaseCollation": {
+            "value": "SQL_Latin1_General_CP1_CI_AS"
+        },
+        {{/if}}
         {{#if enableAudit}}
         "auditStorageAccountName": {
             "value": ""
