@@ -104,7 +104,7 @@
             "type": "Microsoft.Storage/storageAccounts",
             "name": "[parameters('storageAccountName')]",
             "location": "[parameters('location')]",
-            "apiVersion": "2018-07-01",
+            "apiVersion": "2019-06-01",
             "sku": {
                 "name": "[parameters('storageAccountType')]"
             },
@@ -141,6 +141,7 @@
                         }
                     }
                 },
+                "minimumTlsVersion": "TLS1_2",
                 "supportsHttpsTrafficOnly": true{{#if enableHns}},
                 "isHnsEnabled": true
                 {{/if}}
