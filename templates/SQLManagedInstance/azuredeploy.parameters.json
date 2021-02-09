@@ -1,0 +1,72 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "managedInstanceName": {
+            "value": "{{lowerCase name}}"
+        },
+        {{#unless existingServer}}
+        "sqlServerAdminLogin": {
+            "value": ""
+        },
+        "sqlServerAdminPassword": {
+            "value": ""
+        },
+        "virtualNetworkName": {
+            "value": ""
+        },
+        "subnetName": {
+            "value": ""
+        },
+        "sqlNetworkSecurityGroupName": {
+            "value": ""
+        },
+        "sqlRouteTableName": {
+            "value": ""
+        },
+        {{/unless}} {{!-- existingServer --}}
+        {{#if createDB}}
+        "sqlDatabaseName": {
+            "value": ""
+        },
+        "sqlDatabaseCollation": {
+            "value": "SQL_Latin1_General_CP1_CI_AS"
+        },
+        {{/if}}
+        {{#if enableAudit}}
+        "auditStorageAccountName": {
+            "value": ""
+        },
+        "auditRetentionDays": {
+            "value": "0"
+        },
+        {{#if existingStorage}}
+        "auditStorageAccountResourceGroup": {
+          "value": ""
+        },
+        {{else}}
+        "storageAccountType": {
+          "value": "Standard_LRS"
+        },
+        {{/if}}
+        {{/if}}
+        {{#if enableLTR}}
+        "sqlBackupLTRpolicy": {
+            "value": {
+              "weeklyRetention": "P6W",
+              "monthlyRetention": null,
+              "yearlyRetention": null,
+              "weekOfYear": null
+            }
+        }
+        {{/if}}
+        {{#if enableAAD}}
+        "aadAdminObjectId": {
+            "value": ""
+        },
+        "aadAdminLogin": {
+            "value": ""
+        },
+        {{/if}}
+    }
+}
