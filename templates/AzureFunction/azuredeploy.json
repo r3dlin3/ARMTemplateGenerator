@@ -115,7 +115,9 @@
             "tags": "[parameters('tagValues')]",
             "properties": {
                 "ApplicationId": "[parameters('functionName')]",
-                "Request_Source": "IbizaWebAppExtensionCreate"
+                "Request_Source": "IbizaWebAppExtensionCreate",
+                "Flow_Type": "Redfield",
+                "Application_Type": "web"
             }
         },
         {
@@ -128,7 +130,8 @@
             },
             "tags": "[parameters('tagValues')]",
             "properties": {
-                "supportsHttpsTrafficOnly": true
+                "supportsHttpsTrafficOnly": true,
+                "minimumTlsVersion": "TLS1_2"
             }
         },
         {
@@ -143,6 +146,9 @@
                 "name": "[parameters('skuCode')]"
             },
             "properties": {
+                {{#if isLinux}}
+                "reserved": true,
+                {{/if}}
                 "name": "[parameters('hostingPlanName')]",
                 "numberOfWorkers": "[parameters('numberOfWorkers')]"
             }
