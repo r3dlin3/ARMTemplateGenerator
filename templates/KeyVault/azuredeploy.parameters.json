@@ -12,7 +12,7 @@
                 {
                     "objectId": "example-guid",
                     "role": "Key Vault Administrator"
-                },
+                }
             ]
         },
         {{/if}}
