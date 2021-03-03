@@ -16,13 +16,24 @@
               "description": "Tenant Id of the subscription. Get using Get-AzureRmSubscription cmdlet or Get Subscription API"
             }
         },
-        "accessPolicies": {
+        {{#if grantRbacPermision}}
+        "rbacPermissions": {
             "type": "array",
             "defaultValue": "{}",
             "metadata": {
-                "description": "Access policies object {\"tenantId\":\"\",\"objectId\":\"\",\"permissions\":{\"keys\":[\"\"],\"secrets\":[\"\"]}}. Object Id of the AD user: get using Get-AzureRmADUser or Get-AzureRmADServicePrincipal cmdlets. Permissions to keys in the vault. Valid values are: all, create, import, update, get, list, delete, backup, restore, encrypt, decrypt, wrapkey, unwrapkey, sign, and verify."
+                "description": "Array of permission object {\"objectId\":\"\",\"role\":{\"\"}}. Object Id of the AD user: get using Get-AzADUser or Get-AzADServicePrincipal cmdlets. For roles, see https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles."
             }
         },
+        {{/if}}
+        {{#unless isRbacEnabled}}
+        "accessPolicies": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "Access policies object {\"tenantId\":\"\",\"objectId\":\"\",\"permissions\":{\"keys\":[\"\"],\"secrets\":[\"\"]}}. Object Id of the AD user: get using Get-AzADUser or Get-AzADServicePrincipal cmdlets. Permissions to keys in the vault. Valid values are: all, create, import, update, get, list, delete, backup, restore, encrypt, decrypt, wrapkey, unwrapkey, sign, and verify."
+            }
+        },
+        {{/unless}}
         {{#if isDiagnosticsEnabled}}
         "logsRetentionInDays": {
             "type": "int",
@@ -61,10 +72,6 @@
         "enableVaultForDeployment": {
             "type": "bool",
             "defaultValue": false,
-            "allowedValues": [
-                true,
-                false
-            ],
             "metadata": {
                 "description": "Specifies if the vault is enabled for deployment by script or compute (VM, Service Fabric, ...)"
             }
@@ -72,10 +79,6 @@
         "enableVaultForTemplateDeployment": {
             "type": "bool",
             "defaultValue": false,
-            "allowedValues": [
-                true,
-                false
-            ],
             "metadata": {
                 "description": "Specifies if the vault is enabled for a template deployment"
             }
@@ -83,14 +86,19 @@
         "enableVaultForDiskEncryption": {
             "type": "bool",
             "defaultValue": false,
-            "allowedValues": [
-                true,
-                false
-            ],
             "metadata": {
                 "description": "Specifies if the azure platform has access to the vault for enabling disk encryption scenarios."
             }
         },
+        {{#unless enablePurgeProtection}}
+        "enableSoftDelete": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Specifies whether the 'soft delete' functionality is enabled for this key vault."
+            }
+        },
+        {{/unless}}
         "vaultSku": {
             "type": "string",
             "defaultValue": "Standard",
@@ -110,7 +118,45 @@
             }
         }
     },
+    "functions": [
+        {{#if isRbacEnabled}}
+        {{#if grantRbacPermision}}
+        {
+
+            "namespace": "kv",
+            "members": {
+                "roleId": {
+                    "parameters": [
+                        {
+                            "name": "roleGuid",
+                            "type": "string"
+                        }
+                    ],
+                    "output": {
+                        "type": "string",
+                        "value": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', parameters('roleGuid'))]"
+                    }
+                }
+            }
+        }
+        {{/if}}
+        {{/if}}
+    ],
     "variables": {
+        {{#if isRbacEnabled}}
+        {{#if grantRbacPermision}}
+        "rolesId": {
+            "Key Vault Administrator": "[kv.roleId('00482a5a-887f-4fb3-b363-3b7fe8e74483')]",
+            "Key Vault Certificates Officer": "[kv.roleId('a4417e6f-fecd-4de8-b567-7b0420556985')]",
+            "Key Vault Crypto Officer": "[kv.roleId('14b46e9e-c2b7-41b4-b07b-48a6ebf60603')]",
+            "Key Vault Crypto Service Encryption User": "[kv.roleId('e147488a-f6f5-4113-8e2d-b22465e65bf6')]",
+            "Key Vault Crypto User": "[kv.roleId('12338af0-0e69-4776-bea7-57ae8d297424')]",
+            "Key Vault Reader": "[kv.roleId('21090545-7ca7-4776-b22c-e363652d74d2')]",
+            "Key Vault Secrets Officer": "[kv.roleId('b86a8fe4-44ce-4948-aee5-eccb2c155cd7')]",
+            "Key Vault Secrets User": "[kv.roleId('4633458b-17de-408a-b874-0445c86b69e6')]"
+        }
+        {{/if}}
+        {{/if}}
     },
     "resources": [
         {{#if isDiagnosticsEnabled}}
@@ -178,17 +224,24 @@
         {
             "type": "Microsoft.KeyVault/vaults",
             "name": "[parameters('keyVaultName')]",
-            "apiVersion": "2016-10-01",
+            "apiVersion": "2019-09-01",
             "location": "[parameters('location')]",
             "properties": {
                 "enabledForDeployment": "[parameters('enableVaultForDeployment')]",
                 "enabledForTemplateDeployment": "[parameters('enableVaultForTemplateDeployment')]",
                 "enabledForDiskEncryption": "[parameters('enableVaultForDiskEncryption')]",
-                {{#if enableSoftDelete}}
+                {{#if enablePurgeProtection}}
                 "enableSoftDelete": true,
+                "enablePurgeProtection": true,
+                {{else}}
+                "enableSoftDelete": "[parameters('enableSoftDelete')]",
                 {{/if}}
                 "tenantId": "[parameters('tenantId')]",
+                {{#if isRbacEnabled}}
+                "enableRbacAuthorization": true,
+                {{else}}
                 "accessPolicies": "[parameters('AccessPolicies')]",
+                {{/if}}
                 "sku": {
                     "name": "[parameters('vaultSku')]",
                     "family": "A"
@@ -221,8 +274,25 @@
                 }
             ]
             {{/if}}
+        }{{#if grantRbacPermision}},
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[guid(resourceGroup().id, parameters('keyVaultName'), parameters('rbacPermissions')[copyIndex()].objectId)]",
+            "scope": "[concat('Microsoft.KeyVault/vaults/', parameters('keyVaultName'))]",
+            "dependsOn": [
+                "[parameters('keyVaultName')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[variables('rolesId')[parameters('rbacPermissions')[copyIndex()].role]]",
+                "principalId": "[parameters('rbacPermissions')[copyIndex()].objectId]"
+            },
+            "copy": {
+                "name": "permcopy",
+                "count": "[length(parameters('rbacPermissions'))]"
+            }
         }
-        
+        {{/if}}
     ],
     "outputs": {}
 }

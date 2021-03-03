@@ -5,6 +5,18 @@
         "keyVaultName": {
             "value": "{{name}}"
         },
+        {{#if isRbacEnabled}}
+        {{#if grantRbacPermision}}
+        "rbacPermissions": {
+            "value": [
+                {
+                    "objectId": "example-guid",
+                    "role": "Key Vault Administrator"
+                },
+            ]
+        },
+        {{/if}}
+        {{else}}
         "accessPolicies": {
             "value": [
                 {
@@ -33,6 +45,7 @@
                 }
             ]
         },
+        {{/if}}
         {{#if isDiagnosticsEnabled}}
         "logsRetentionInDays": {
             "value": 365

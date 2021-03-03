@@ -40,13 +40,28 @@ module.exports.generator = {
             message: 'Do you want to lock the Key Vault?',
         },
         {
-            // The property enableSoftDelete does not support false value \o/
-            // Therefore, we manage the presence of this property with
-            // a new flag
             type: 'confirm',
-            name: 'enableSoftDelete',
+            name: 'isRbacEnabled',
             default: false,
-            message: 'Do you want to enable soft delete?',
+            message: 'Do you want to use RBAC for access control?',
+        },
+        {
+            type: 'confirm',
+            name: 'grantRbacPermision',
+            default: true,
+            message: 'Do you want to grant RBAC permission on the Key Vault?',
+            when: function (answers) {
+                return answers.isRbacEnabled;
+            }
+        },
+        {
+            // The property "enablePurgeProtection" cannot be set to false. 
+            // Enabling the purge protection for a vault is an irreversible action.
+            // Therefore, we manage the presence of this property with a new flag
+            type: 'confirm',
+            name: 'enablePurgeProtection',
+            default: false,
+            message: 'Do you want to enable purge protection?',
         },
     ], // array of inquirer prompts
     actions: actionTypes.DEFAULT_ACTIONS(__dirname)
