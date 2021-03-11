@@ -1,0 +1,194 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "logicAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the LogicApps"
+            }
+        },
+        {{#if isDiagnosticsEnabled}}
+        "logAnalyticsWorspaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Log Analytics Workspace"
+            }
+        },
+        {{#if existingLogAnalytics}}
+        "logAnalyticsWorspaceResourceGroupName": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "Name of resource group of the Log Analytics Workspace if different from the current resource group"
+            }
+        },
+        {{else}}
+        "logAnalyticsSku": {
+            "type": "string",
+            "defaultValue": "PerGB2018",
+            "allowedValues": [
+                "Free",
+                "Standard",
+                "Premium",
+                "PerNode",
+                "PerGB2018",
+                "Standalone"
+            ],
+            "metadata": {
+                "description": "The SKU of the workspace."
+            }
+        },
+        {{/if}}
+        {{/if}}
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "The region to deploy the resources into"
+            }
+        },
+        "tagValues": {
+            "type": "object",
+            "defaultValue": "[resourceGroup().tags]"
+        }
+    },
+    "variables": {
+        {{#if isDiagnosticsEnabled}}
+        "logicAppDiagnosticSettings": "service",
+        "omsSolutionName": "LogicAppsManagement",
+        {{#if existingLogAnalytics}}
+        "logAnalyticsWorkspaceId": "[resourceId(parameters('logAnalyticsWorspaceResourceGroupName'), 'microsoft.operationalinsights/workspaces', parameters('logAnalyticsWorspaceName'))]"
+        {{else}}
+        "logAnalyticsWorkspaceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('logAnalyticsWorspaceName'))]"
+        {{/if}}
+        {{/if}}
+    },
+    "resources": [
+        {{#if isDiagnosticsEnabled}}
+        {{#unless existingLogAnalytics}}
+        {
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2015-11-01-preview",
+            "name": "[parameters('logAnalyticsWorspaceName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "[parameters('logAnalyticsSku')]"
+                }
+            },
+            "tags": "[parameters('tagValues')]"
+        },
+        {{/unless}}
+        {{/if}}
+        {
+            "name": "[parameters('logicAppName')]",
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                {{#if isDiagnosticsEnabled}}
+                {{#unless existingLogAnalytics}}
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorspaceName'))]"
+                {{/unless}}
+                {{/if}}
+            ],
+            {{#if enableManagedIdentity}}
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            {{/if}}
+            "properties": {
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {},
+                    "actions": {},
+                    "outputs": {}
+                },
+                "parameters": {}
+            },
+            {{#if isDiagnosticsEnabled}}
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "name": "[concat('Microsoft.Insights/', variables('logicAppDiagnosticSettings'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Logic/workflows', parameters('logicAppName'))]"
+                    ],
+                    "apiVersion": "2017-05-01-preview",
+                    "properties": {
+                        "name": "[variables('logicAppDiagnosticSettings')]",
+                        "workspaceId": "[variables('logAnalyticsWorkspaceId')]",
+                        "logs": [
+                            {
+                                "category": "WorkflowRuntime",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "timeGrain": "PT1M",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "enabled": false,
+                                    "days": 0
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
+            {{/if}}
+            "tags": "[parameters('tagValues')]"
+        }{{#if isDiagnosticsEnabled}},
+        {
+            "apiVersion": "2017-05-10",
+            "name": "omsSolutionTemplate",
+            "comments": "Deployment of the monitoring solution",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                {{#unless existingLogAnalytics}}
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorspaceName'))]"
+                {{/unless}}
+            ],
+            {{#if existingLogAnalytics}}
+            "resourceGroup": "[parameters('logAnalyticsWorspaceResourceGroupName')]",
+            {{/if}}
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "apiVersion": "2015-11-01-preview",
+                            "type": "Microsoft.OperationsManagement/solutions",
+                            "location": "[parameters('location')]",
+                            "name": "[Concat(variables('omsSolutionName'), '(', parameters('logAnalyticsWorspaceName'), ')')]",
+                            "properties": {
+                                "workspaceResourceId": "[variables('logAnalyticsWorkspaceId')]"
+                            },
+                            "plan": {
+                                "name": "[Concat(variables('omsSolutionName'), '(', parameters('logAnalyticsWorspaceName'), ')')]",
+                                "product": "[Concat('OMSGallery/', variables('omsSolutionName'))]",
+                                "promotionCode": "",
+                                "publisher": "Microsoft"
+                            }
+                        }
+                    ]
+                },
+                "parameters": {}
+            }
+        }
+        {{/if}}
+    ],
+    "outputs": {}
+}
