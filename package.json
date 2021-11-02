@@ -6,6 +6,6 @@
     "inquirer-recursive": "git+https://github.com/r3dlin3/inquirer-recursive.git#master"
   },
   "devDependencies": {
-    "plop": "^2.7.4"
+    "plop": "^2.7.6"
   }
 }
