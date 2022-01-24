@@ -68,6 +68,7 @@
                 "Python|3.7",
                 "Python|3.6",
                 "Java|8",
+                "DOTNET-ISOLATED|5.0",
                 ""
             ],
             "metadata": {
@@ -79,6 +80,7 @@
             "allowedValues": [
                 "node",
                 "dotnet",
+                "dotnet-isolated",
                 "java",
                 {{#if isLinux}}
                 "powershell"
